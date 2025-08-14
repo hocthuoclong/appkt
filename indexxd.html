@@ -383,6 +383,51 @@
                                 };
                             },
                             formulaText: 'Vật liệu = (Diện tích × Độ dày) × Định mức'
+                        },
+                        'tinhVatLieuSon': {
+                            name: 'Tính toán vật liệu sơn tường',
+                            inputs: [
+                                { label: 'Tên phòng/khu vực (để ghi nhớ)', id: 'areaName', type: 'text', unit: 'VD: Tường phòng khách' },
+                                { label: 'Chiều dài tường (m)', id: 'length', unit: 'm' },
+                                { label: 'Chiều cao tường (m)', id: 'height', unit: 'm' },
+                                { label: 'Số mặt sơn', id: 'sides', type: 'select', options: [{value: 1, text: '1 mặt'}, {value: 2, text: '2 mặt'}], default: 2 },
+                                { label: 'Số lớp bột trét', id: 'numCoatsPutty', type: 'select', options: [{value: 1, text: '1 lớp'}, {value: 2, text: '2 lớp'}], default: 2 },
+                                { label: 'Số lớp sơn lót', id: 'numCoatsPrimer', type: 'select', options: [{value: 1, text: '1 lớp'}, {value: 2, text: '2 lớp'}], default: 1 },
+                                { label: 'Số lớp sơn hoàn thiện', id: 'numCoatsFinish', unit: 'lớp', default: 2 }
+                            ],
+                            calculate: (vals) => {
+                                const area = vals.length * vals.height * vals.sides;
+
+                                // Putty: 1 kg/m²/lớp
+                                const totalPutty_kg = area * vals.numCoatsPutty * 1;
+                                const totalPutty_bags = totalPutty_kg / 40;
+
+                                // Primer: 10 m²/lít/lớp
+                                const totalPrimer_liters = (area * vals.numCoatsPrimer) / 10;
+
+                                // Finish: 12 m²/lít/lớp
+                                const totalFinish_liters = (area * vals.numCoatsFinish) / 12;
+                                
+                                const materials = { botTret: totalPutty_bags, sonLot: totalPrimer_liters, sonHoanThien: totalFinish_liters };
+
+                                const resultText = `
+                                    <div class="space-y-3 text-left">
+                                        <p><strong>- Bột trét:</strong> ${Math.ceil(totalPutty_bags).toLocaleString()} bao (40kg)</p>
+                                        <p><strong>- Sơn lót:</strong> ${totalPrimer_liters.toFixed(2)} lít (Gợi ý: ${Math.ceil(totalPrimer_liters/18)} thùng 18L hoặc ${Math.ceil(totalPrimer_liters/5)} lon 5L)</p>
+                                        <p><strong>- Sơn hoàn thiện:</strong> ${totalFinish_liters.toFixed(2)} lít (Gợi ý: ${Math.ceil(totalFinish_liters/18)} thùng 18L hoặc ${Math.ceil(totalFinish_liters/5)} lon 5L)</p>
+                                        <p class="text-xs italic text-gray-500 border-t pt-2 mt-2"><strong>Lưu ý:</strong> Định mức trên là ước tính. Lượng vật tư thực tế có thể thay đổi tùy thuộc vào bề mặt tường và tay nghề thợ.</p>
+                                    </div>
+                                `;
+
+                                return {
+                                    type: 'result',
+                                    value: `Vật liệu cho: ${vals.areaName || 'Tường hiện tại'}`,
+                                    unit: `(Diện tích sơn: ${area.toFixed(2)} m²)`,
+                                    note: resultText,
+                                    materials: materials
+                                };
+                            },
+                            formulaText: 'Vật liệu = Diện tích × Định mức'
                         }
                     }
                 }
@@ -409,14 +454,16 @@
                 gachOng: 'viên', gachThe: 'viên', gachKhongNung: 'viên', gachAAC: 'viên', vuaChuyenDung: 'kg',
                 xiMang: 'bao', catXay: 'm³', catTo: 'm³', luoiChongNut: 'm²',
                 catVang: 'm³', da1x2: 'm³',
-                thepPhi6: 'kg', thepPhi10: 'kg', thepPhi12: 'kg', cotPha: 'm²'
+                thepPhi6: 'kg', thepPhi10: 'kg', thepPhi12: 'kg', cotPha: 'm²',
+                botTret: 'bao', sonLot: 'lít', sonHoanThien: 'lít'
             };
              const materialNames = {
                 gachOng: 'Gạch ống (8x8x18 cm)', gachThe: 'Gạch thẻ (4x8x18 cm)', gachKhongNung: 'Gạch không nung (20x10x6 cm)',
                 gachAAC: 'Gạch bê tông nhẹ (AAC)', vuaChuyenDung: 'Vữa chuyên dụng (cho gạch AAC)',
                 xiMang: 'Xi măng (tổng hợp)', catXay: 'Cát xây', catTo: 'Cát tô', luoiChongNut: 'Lưới chống nứt',
                 catVang: 'Cát vàng (bê tông)', da1x2: 'Đá 1x2 (bê tông)',
-                thepPhi6: 'Thép Ø6', thepPhi10: 'Thép Ø10', thepPhi12: 'Thép Ø12', cotPha: 'Cốt pha (ván khuôn)'
+                thepPhi6: 'Thép Ø6', thepPhi10: 'Thép Ø10', thepPhi12: 'Thép Ø12', cotPha: 'Cốt pha (ván khuôn)',
+                botTret: 'Bột trét tường', sonLot: 'Sơn lót', sonHoanThien: 'Sơn hoàn thiện'
             };
 
             function initSummary() {
@@ -627,7 +674,7 @@
             // --- INITIALIZATION ---
             function initializePage() {
                 const category = formulas['vlxd'];
-                const calcOrder = ['tinhVatLieuTuong', 'tinhVuaToTrat'];
+                const calcOrder = ['tinhVatLieuTuong', 'tinhVuaToTrat', 'tinhVatLieuSon'];
                 
                 calcOrder.forEach(calcKey => {
                     if (category.calculations[calcKey]) {
