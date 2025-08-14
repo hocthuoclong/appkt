@@ -80,6 +80,27 @@
                         <!-- Category buttons will be inserted here by JS -->
                     </div>
                 </div>
+                <!-- Add to Home Screen Hint -->
+                <div class="mt-6">
+                    <div class="card p-4 bg-sky-50 border-l-4 border-sky-500 text-sky-800">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                </svg>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm font-bold">
+                                    Ghim ra màn hình chính để truy cập nhanh!
+                                </p>
+                                <p class="text-xs mt-1">
+                                    <strong>Trên iPhone (Safari):</strong> Bấm nút Chia sẻ (biểu tượng mũi tên lên) → 'Thêm vào MH chính'.<br>
+                                    <strong>Trên Android (Chrome):</strong> Bấm menu (⋮) → 'Thêm vào Màn hình chính'.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- Screen 2: Calculation Screen -->
@@ -113,12 +134,15 @@
                     </div>
 
                     <!-- Action Buttons -->
-                    <div class="flex flex-col sm:flex-row gap-4">
-                        <button id="calculate-btn" class="btn w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                        <button id="calculate-btn" class="btn col-span-2 sm:col-span-1 w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                             Tính Toán
                         </button>
                          <button id="clear-btn" class="btn w-full bg-gray-200 text-gray-700 font-bold py-3 px-4 rounded-lg hover:bg-gray-300">
                             Xoá
+                        </button>
+                        <button id="home-btn" class="btn w-full bg-gray-200 text-gray-700 font-bold py-3 px-4 rounded-lg hover:bg-gray-300">
+                            Trang chủ
                         </button>
                     </div>
 
@@ -126,6 +150,30 @@
                     <div id="result-container" class="mt-6">
                         <!-- Result or error will be shown here -->
                     </div>
+
+                    <!-- Support Section -->
+                    <div id="support-section" class="mt-8" style="display: none;">
+                        <div class="card p-6 text-center bg-gray-50">
+                            <h3 class="text-lg font-semibold text-gray-800">Thấy ứng dụng hữu ích?</h3>
+                            <p class="text-sm text-gray-600 mt-2 max-w-md mx-auto">
+                                Mọi sự đóng góp, dù nhỏ nhất, đều là nguồn động viên to lớn để tác giả duy trì và phát triển thêm nhiều tính năng mới.
+                            </p>
+                            <div class="mt-4 flex flex-col md:flex-row items-center justify-center gap-6">
+                                <div class="flex-shrink-0">
+                                    <img src="ma-qr.png" alt="QR Code Ung Ho" class="w-36 h-36 rounded-lg object-cover" onerror="this.onerror=null;this.src='https://placehold.co/144x144/e2e8f0/334155?text=QR+Code';">
+                                </div>
+                                <div class="text-left text-sm space-y-1">
+                                    <p><strong>Ngân hàng:</strong> ACB</p>
+                                    <p><strong>Số tài khoản:</strong> 33505737</p>
+                                    <p><strong>Chủ tài khoản:</strong> HUYNH THI KIM DINH</p>
+                                </div>
+                            </div>
+                            <p class="text-xs text-gray-500 mt-4 italic">
+                                Đây là hình thức ủng hộ hoàn toàn tự nguyện, không phải là một khoản phí bắt buộc để sử dụng ứng dụng.
+                            </p>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </main>
@@ -153,6 +201,66 @@
                 { value: 'indoor', text: 'Đi trong nhà, trong ống luồn' },
                 { value: 'underground', text: 'Đi ngầm trực tiếp trong đất' },
                 { value: 'aerial', text: 'Đi trên không (treo trên cột)' }
+            ];
+            
+            const ventilationRoomTypes = [
+                { value: 12, text: 'Nhà vệ sinh (10-15 lần/h)' },
+                { value: 15, text: 'Nhà bếp (15-20 lần/h)' },
+                { value: 8, text: 'Văn phòng (6-10 lần/h)' },
+                { value: 10, text: 'Tầng hầm / Bãi xe (8-12 lần/h)' },
+                { value: 6, text: 'Phòng ngủ (4-8 lần/h)' },
+                { value: 10, text: 'Phòng họp (8-12 lần/h)' }
+            ];
+
+            const ductVelocityOptions = [
+                { value: 2.5, text: 'Phòng ngủ, khu vực yên tĩnh (2-3 m/s)' },
+                { value: 4, text: 'Văn phòng, không gian chung (3-5 m/s)' },
+                { value: 6, text: 'Hành lang, khu vực công cộng (5-7 m/s)' },
+                { value: 8, text: 'Ống gió chính, nhà xưởng (7-9 m/s)' }
+            ];
+            
+            const buildingTypes = [
+                { value: 200, text: 'Nhà ở gia đình' },
+                { value: 250, text: 'Căn hộ chung cư' },
+                { value: 100, text: 'Văn phòng' },
+                { value: 300, text: 'Khách sạn / Nhà hàng' }
+            ];
+
+            const pressureOptions = [
+                { value: 10, text: 'Nhà ở, căn hộ (10m)' },
+                { value: 15, text: 'Văn phòng, tòa nhà nhỏ (15m)' },
+                { value: 20, text: 'Khách sạn, nhà hàng (20m)' }
+            ];
+
+            const storageDurationOptions = [
+                { value: 0.5, text: 'Nửa ngày (dự phòng tối thiểu)' },
+                { value: 1, text: '1 ngày (tiêu chuẩn)' },
+                { value: 2, text: '2 ngày (khu vực hay mất nước)' },
+                { value: 7, text: '1 tuần (yêu cầu đặc biệt)' }
+            ];
+
+            const illuminanceStandards = [
+                { value: 150, text: 'Phòng ngủ, hành lang' },
+                { value: 300, text: 'Phòng khách, phòng ăn' },
+                { value: 500, text: 'Văn phòng, nhà bếp, lớp học' },
+                { value: 750, text: 'Xưởng cơ khí chính xác' },
+                { value: 20, text: 'Đường phố, khu vực ngoài trời' }
+            ];
+
+            const lampTypes = [
+                { value: 1000, text: 'Tuýp LED T8 0.6m (≈1000 lm)' },
+                { value: 2000, text: 'Tuýp LED T8 1.2m (≈2000 lm)' },
+                { value: 4000, text: 'Panel LED 600x600 (≈4000 lm)' },
+                { value: 900, text: 'Downlight LED âm trần (≈900 lm)' },
+                { value: 20000, text: 'Highbay LED nhà xưởng (≈20000 lm)' },
+                { value: 13000, text: 'Đèn đường LED (≈13000 lm)' },
+                { value: 'custom', text: 'Loại khác (nhập thủ công)' }
+            ];
+
+            const reflectivityOptions = [
+                { value: 0.7, text: 'Tường/Trần sáng màu' },
+                { value: 0.6, text: 'Tường/Trần màu trung tính' },
+                { value: 0.5, text: 'Tường/Trần tối màu' }
             ];
 
             const formulas = {
@@ -394,7 +502,7 @@
                                 { label: 'Loại tải / Hệ số công suất (cos φ)', id: 'cosphi', type: 'select', options: cosphiOptions, default: 0.85 }
                             ],
                             calculate: (vals) => {
-                                const p = vals.u * vals.i * vals.cosphi;
+                                const p = vals.u * vals.i * parseFloat(vals.cosphi);
                                 return { type: 'result', value: `Công suất: ${(p / 1000).toFixed(3)} kW`, unit: `(${p.toFixed(2)} W)` };
                             },
                             formulaText: 'P = U × I × cos(φ)'
@@ -407,7 +515,7 @@
                                 { label: 'Loại tải / Hệ số công suất (cos φ)', id: 'cosphi', type: 'select', options: cosphiOptions.filter(o => o.text.indexOf('DC') === -1), default: 0.9 }
                             ],
                             calculate: (vals) => {
-                                const p = Math.sqrt(3) * vals.u * vals.i * vals.cosphi;
+                                const p = Math.sqrt(3) * vals.u * vals.i * parseFloat(vals.cosphi);
                                 return { type: 'result', value: `Công suất: ${(p / 1000).toFixed(3)} kW`, unit: `(${p.toFixed(2)} W)` };
                             },
                             formulaText: 'P = √3 × U × I × cos(φ)'
@@ -418,17 +526,97 @@
                     name: 'Nhiệt - Điện Lạnh',
                     icon: `<svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-blue-500" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM4.332 7.652a.5.5 0 01.734-.65l.02.022c.19.19.44.293.707.293s.517-.103.707-.293l.02-.022a.5.5 0 01.734.65l-.02.022a1.75 1.75 0 01-2.474 0l-.022-.022zm5.416 0a.5.5 0 01.734-.65l.02.022a1.75 1.75 0 012.474 2.474l-.02.022a.5.5 0 11-.734-.65l.02-.022c.19-.19.293-.44.293-.707s-.103-.517-.293-.707l-.02-.022a.5.5 0 010-.734zM10 14a4 4 0 003.536-2.002.5.5 0 11-.866-.5A3 3 0 0110 13a3 3 0 01-2.67-1.502.5.5 0 11-.866.5A4 4 0 0010 14z" clip-rule="evenodd" /></svg>`,
                     calculations: {
-                        'coolingload': {
-                            name: 'Công suất lạnh (Qo)',
+                        'chonMayLanh': {
+                            name: 'Tính toán chọn máy lạnh',
                             inputs: [
-                                { label: 'Lưu lượng gió - Đơn vị m³/h', id: 'cfm', unit: 'm³/h' },
-                                { label: 'Chênh lệch nhiệt độ (ΔT) - Đơn vị °C', id: 'delta_t', unit: '°C' }
+                                { label: 'Chiều dài phòng (m)', id: 'length', unit: 'm' },
+                                { label: 'Chiều rộng phòng (m)', id: 'width', unit: 'm' },
+                                { label: 'Chiều cao phòng (m)', id: 'height', unit: 'm', default: 3 },
+                                { label: 'Loại phòng', id: 'roomType', type: 'select', options: [{value: 'bedroom', text: 'Phòng ngủ'}, {value: 'livingroom', text: 'Phòng khách/Văn phòng'}], default: 'bedroom' },
+                                { label: 'Hướng tường/cửa sổ chính', id: 'direction', type: 'select', options: [{value: 'hot', text: 'Hướng nắng gắt (Tây)'}, {value: 'cool', text: 'Hướng ít nắng'}, {value: 'shaded', text: 'Có che nắng tốt'}], default: 'cool' },
+                                { label: 'Số người thường xuyên', id: 'people', unit: 'người', default: 2 },
+                                { label: 'Số thiết bị tỏa nhiệt (máy tính, TV)', id: 'equipment', unit: 'cái', default: 1 },
+                                { label: 'Phòng có thông với khu vực khác (bếp, cầu thang)?', id: 'isOpen', type: 'select', options: [{value: 'no', text: 'Không'}, {value: 'yes', text: 'Có'}], default: 'no' }
                             ],
                             calculate: (vals) => {
-                                const q_kw = (vals.cfm * 1.21 * vals.delta_t) / 3600;
-                                return { type: 'result', value: q_kw.toFixed(3), unit: 'kW' };
+                                const area = vals.length * vals.width;
+                                let baseBtu = area * 600; // Base calculation
+
+                                // Adjustments
+                                if (vals.direction === 'hot') baseBtu *= 1.2;
+                                if (vals.direction === 'shaded') baseBtu *= 0.8;
+                                if (vals.roomType === 'livingroom') baseBtu *= 1.1;
+                                if (vals.isOpen === 'yes') baseBtu *= 1.3;
+
+                                const peopleBtu = (vals.people > 2 ? vals.people - 2 : 0) * 600;
+                                const equipmentBtu = vals.equipment * 1200;
+
+                                const totalBtu = baseBtu + peopleBtu + equipmentBtu;
+                                const standardBtus = [9000, 12000, 18000, 24000, 36000, 48000, 60000];
+                                const suggestedBtu = standardBtus.find(b => b >= totalBtu) || Math.ceil(totalBtu / 1000) * 1000;
+                                const hp = suggestedBtu / 9000;
+
+                                let acTypeSuggestion = '';
+                                if (suggestedBtu <= 18000) acTypeSuggestion = 'Gợi ý: Máy lạnh treo tường.';
+                                else if (suggestedBtu <= 48000) acTypeSuggestion = 'Gợi ý: Cassette âm trần, Áp trần.';
+                                else acTypeSuggestion = 'Gợi ý: Cassette âm trần, Nối ống gió, Tủ đứng.';
+
+                                return {
+                                    type: 'result',
+                                    value: `Công suất yêu cầu: ${suggestedBtu.toLocaleString()} BTU/h`,
+                                    unit: `Tương đương: ${hp.toFixed(1)} HP (ngựa)`,
+                                    note: acTypeSuggestion
+                                };
                             },
-                            formulaText: 'Qo ≈ (V × 1.21 × ΔT) / 3600'
+                            formulaText: 'BTU ≈ (Diện tích × 600) + Phụ tải'
+                        },
+                        'chonQuatThongGio': {
+                            name: 'Tính toán quạt thông gió',
+                             inputs: [
+                                { label: 'Chiều dài phòng (m)', id: 'length', unit: 'm' },
+                                { label: 'Chiều rộng phòng (m)', id: 'width', unit: 'm' },
+                                { label: 'Chiều cao phòng (m)', id: 'height', unit: 'm', default: 3 },
+                                { label: 'Chức năng phòng (bội số trao đổi không khí)', id: 'roomFunction', type: 'select', options: ventilationRoomTypes, default: 12 },
+                            ],
+                            calculate: (vals) => {
+                                const volume = vals.length * vals.width * vals.height;
+                                const ach = parseFloat(vals.roomFunction); // Air Changes per Hour
+                                const airflowM3H = volume * ach;
+                                const airflowCFM = airflowM3H / 1.7; // Approximate conversion
+
+                                let fanTypeSuggestion = 'Gợi ý: Quạt hút gắn tường/trần.';
+                                if (airflowM3H > 1000) {
+                                    fanTypeSuggestion = 'Gợi ý: Quạt hút/cấp nối ống gió.';
+                                }
+                                
+                                return {
+                                    type: 'result',
+                                    value: `Lưu lượng gió yêu cầu: ${Math.round(airflowM3H).toLocaleString()} m³/h`,
+                                    unit: `Tương đương: ${Math.round(airflowCFM).toLocaleString()} CFM`,
+                                    note: fanTypeSuggestion
+                                };
+                            },
+                            formulaText: 'Lưu lượng gió (m³/h) = Thể tích (m³) × Bội số trao đổi (lần/h)'
+                        },
+                        'chonTietDienOngGio': {
+                            name: 'Tính tiết diện ống gió',
+                            inputs: [
+                                { label: 'Lưu lượng gió (m³/h)', id: 'airflow', unit: 'm³/h' },
+                                { label: 'Vận tốc gió trong ống', id: 'velocity', type: 'select', options: ductVelocityOptions, default: 4 }
+                            ],
+                            calculate: (vals) => {
+                                const area_m2 = vals.airflow / (vals.velocity * 3600);
+                                const round_diameter_mm = Math.sqrt((4 * area_m2) / Math.PI) * 1000;
+                                const square_side_mm = Math.sqrt(area_m2) * 1000;
+
+                                return {
+                                    type: 'result',
+                                    value: `Tiết diện yêu cầu: ${area_m2.toFixed(4)} m²`,
+                                    unit: `Ống tròn tương đương: Ø${Math.round(round_diameter_mm)} mm`,
+                                    note: `Gợi ý ống chữ nhật (vuông): ${Math.round(square_side_mm)} x ${Math.round(square_side_mm)} mm. Điều chỉnh tỉ lệ cạnh cho phù hợp.`
+                                };
+                            },
+                            formulaText: 'Tiết diện (m²) = Lưu lượng (m³/h) / (Vận tốc (m/s) × 3600)'
                         }
                     }
                 },
@@ -436,20 +624,207 @@
                     name: 'Cấp Thoát Nước',
                     icon: `<svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-cyan-500" viewBox="0 0 20 20" fill="currentColor"><path d="M5.5 16a3.5 3.5 0 01-3.5-3.5V5a.5.5 0 011 0v7.5a2.5 2.5 0 002.5 2.5h9a.5.5 0 010 1h-9z" /><path d="M17.293 3.293a1 1 0 011.414 0l.707.707a1 1 0 010 1.414l-2 2a1 1 0 01-1.414 0l-1-1a1 1 0 010-1.414l2-2a1 1 0 010-1.414zM14.5 9.5a1 1 0 00-1 1v.01a1 1 0 001 1h.01a1 1 0 001-1V10.5a1 1 0 00-1-1h-.01z" /></svg>`,
                     calculations: {
-                        'flowrate': {
-                            name: 'Lưu lượng nước qua ống',
+                        'chonBomTangAp': {
+                            name: 'Tính bơm tăng áp đường ống',
                             inputs: [
-                                { label: 'Đường kính trong ống (D) - Đơn vị mm', id: 'diameter', unit: 'mm' },
-                                { label: 'Vận tốc dòng chảy (v) - Đơn vị m/s', id: 'velocity', unit: 'm/s', default: 1.5 }
+                                { label: 'Công năng tòa nhà (Tiêu chuẩn dùng nước)', id: 'buildingType', type: 'select', options: buildingTypes, default: 200 },
+                                { label: 'Số người sử dụng', id: 'numPeople', unit: 'người' },
+                                { label: 'Chiều cao tới điểm dùng nước cao nhất (m)', id: 'highestPoint', unit: 'm' },
+                                { label: 'Áp lực yêu cầu tại vòi (tiêu chuẩn)', id: 'pressureAtTap', type: 'select', options: pressureOptions, default: 10 }
                             ],
                             calculate: (vals) => {
-                                const radius_m = (vals.diameter / 2) / 1000;
-                                const area_m2 = Math.PI * Math.pow(radius_m, 2);
-                                const flow_m3_s = area_m2 * vals.velocity;
-                                const flow_m3_h = flow_m3_s * 3600;
-                                return { type: 'result', value: flow_m3_h.toFixed(3), unit: 'm³/h' };
+                                const consumptionRate = parseFloat(vals.buildingType);
+                                const dailyDemand_L = vals.numPeople * consumptionRate;
+                                const peakFlow_m3h = (dailyDemand_L * 2.5) / (1000 * 24);
+
+                                const staticHead_m = vals.highestPoint;
+                                const frictionLoss_m = staticHead_m * 0.2;
+                                const requiredPressure_m = parseFloat(vals.pressureAtTap);
+                                const totalHead_m = staticHead_m + frictionLoss_m + requiredPressure_m;
+                                
+                                const pumpEfficiency = 0.6; // Assume 60% efficiency
+                                const power_kW = (peakFlow_m3h * totalHead_m) / (367 * pumpEfficiency);
+                                const power_HP = power_kW / 0.746;
+
+                                const standardHP = [0.5, 1, 1.5, 2, 3, 5, 7.5, 10];
+                                const suggestedHP = standardHP.find(hp => hp >= power_HP) || Math.ceil(power_HP);
+                                const suggestedKW = suggestedHP * 0.746;
+
+                                const pumpSuggestion = `Gợi ý bơm tăng áp ${suggestedHP} HP (${suggestedKW.toFixed(1)} kW) với cột áp ~${totalHead_m.toFixed(1)}m.`;
+
+                                return {
+                                    type: 'result',
+                                    value: `Lưu lượng yêu cầu: ${peakFlow_m3h.toFixed(2)} m³/h`,
+                                    unit: `Cột áp tổng yêu cầu: ${totalHead_m.toFixed(1)} m`,
+                                    note: `${pumpSuggestion} Tham khảo biểu đồ hiệu suất của nhà sản xuất để có lựa chọn chính xác nhất.`
+                                };
                             },
-                            formulaText: 'Q = (π × D²/4) × v'
+                            formulaText: 'H_tổng = H_tĩnh + H_tổn thất + H_tự do'
+                        },
+                        'chonBomDayBon': {
+                            name: 'Tính bơm cấp nước vào bồn',
+                            inputs: [
+                                { label: 'Dung tích bồn chứa (m³)', id: 'tankVolume', unit: 'm³' },
+                                { label: 'Thời gian bơm đầy mong muốn (phút)', id: 'fillTime', unit: 'phút', default: 120 },
+                                { label: 'Chiều cao từ bơm đến miệng bồn (m) - (nhập số âm nếu bồn âm)', id: 'tankHeight', unit: 'm' }
+                            ],
+                            calculate: (vals) => {
+                                if (vals.fillTime <= 0) throw new Error('Thời gian bơm đầy phải lớn hơn 0.');
+                                const flowRate_m3h = vals.tankVolume / (vals.fillTime / 60);
+                                const staticHead_m = vals.tankHeight;
+                                const frictionLoss_m = Math.abs(staticHead_m) * 0.15 + 5; 
+                                const totalHead_m = staticHead_m + frictionLoss_m;
+
+                                const pumpEfficiency = 0.6;
+                                const power_kW = (flowRate_m3h * totalHead_m) / (367 * pumpEfficiency);
+                                const power_HP = power_kW / 0.746;
+
+                                const standardHP = [0.5, 1, 1.5, 2, 3, 5];
+                                const suggestedHP = standardHP.find(hp => hp >= power_HP) || Math.ceil(power_HP);
+                                const suggestedKW = suggestedHP * 0.746;
+
+                                const pumpSuggestion = `Gợi ý bơm đẩy cao/ly tâm ${suggestedHP} HP (${suggestedKW.toFixed(1)} kW) với cột áp ~${totalHead_m.toFixed(1)}m.`;
+
+                                return {
+                                    type: 'result',
+                                    value: `Lưu lượng yêu cầu: ${flowRate_m3h.toFixed(2)} m³/h`,
+                                    unit: `Cột áp yêu cầu: ${totalHead_m.toFixed(1)} m`,
+                                    note: `${pumpSuggestion} Tham khảo biểu đồ hiệu suất của nhà sản xuất.`
+                                };
+                            },
+                            formulaText: 'Q = V_bồn / t; H_tổng = H_tĩnh + H_tổn thất'
+                        },
+                        'chonBonChuaNuoc': {
+                            name: 'Tính toán chọn bồn chứa nước',
+                            inputs: [
+                                { label: 'Công năng tòa nhà (Tiêu chuẩn dùng nước)', id: 'buildingType', type: 'select', options: buildingTypes, default: 200 },
+                                { label: 'Số người sử dụng', id: 'numPeople', unit: 'người' },
+                                { label: 'Thời gian trữ nước mong muốn', id: 'storageDuration', type: 'select', options: storageDurationOptions, default: 1 }
+                            ],
+                            calculate: (vals) => {
+                                const consumptionRate = parseFloat(vals.buildingType);
+                                const dailyDemand_L = vals.numPeople * consumptionRate;
+                                const requiredVolume_L = dailyDemand_L * parseFloat(vals.storageDuration);
+
+                                const standardTankSizes = [500, 700, 1000, 1500, 2000, 3000, 4000, 5000, 10000];
+                                const suggestedTank = standardTankSizes.find(size => size >= requiredVolume_L) || Math.ceil(requiredVolume_L / 1000) * 1000;
+
+                                return {
+                                    type: 'result',
+                                    value: `Dung tích yêu cầu: ${requiredVolume_L.toFixed(0)} Lít`,
+                                    unit: `(${ (requiredVolume_L / 1000).toFixed(2) } m³)`,
+                                    note: `Gợi ý: Chọn bồn chứa nước ${suggestedTank}L. Nên chọn bồn nhựa/inox tùy điều kiện lắp đặt.`
+                                };
+                            },
+                            formulaText: 'V_bồn = (Số người × TCDN) × Thời gian trữ'
+                        },
+                        'chonOngCapThoat': {
+                            name: 'Tính toán chọn ống cấp & thoát nước',
+                            inputs: [
+                                { label: 'Công năng tòa nhà', id: 'buildingType', type: 'select', options: buildingTypes, default: 200 },
+                                { label: 'Số người sử dụng', id: 'numPeople', unit: 'người' },
+                                { label: 'Chiều cao tới điểm dùng nước cao nhất (m)', id: 'highestPoint', unit: 'm' }
+                            ],
+                            calculate: (vals) => {
+                                const consumptionRate = parseFloat(vals.buildingType);
+                                const dailyDemand_L = vals.numPeople * consumptionRate;
+                                const peakFlow_m3h = (dailyDemand_L * 2.5) / (1000 * 24);
+                                const peakFlow_m3s = peakFlow_m3h / 3600;
+
+                                const getDiameter = (flow_m3s, velocity_ms) => {
+                                    return Math.sqrt((4 * flow_m3s) / (Math.PI * velocity_ms)) * 1000;
+                                };
+                                
+                                const roundToStandardPipeSize = (diameter_mm, standardSizes) => {
+                                    return standardSizes.find(size => size >= diameter_mm) || standardSizes[standardSizes.length - 1];
+                                };
+                                
+                                const pipeSizes = [20, 25, 32, 40, 50, 63, 75, 90, 110];
+                                const drainSizes = [60, 90, 114, 140, 160];
+
+                                // Calculations
+                                const mainPipe_d = getDiameter(peakFlow_m3s, 1.5);
+                                const branch1_d = getDiameter(peakFlow_m3s * 0.4, 1.2);
+                                const branch2_d = getDiameter((0.7 / 3600), 1.0); // 0.7 m3/h for a fixture group
+
+                                const mainPipe_size = roundToStandardPipeSize(mainPipe_d, pipeSizes);
+                                const branch1_size = roundToStandardPipeSize(branch1_d, pipeSizes);
+                                const branch2_size = roundToStandardPipeSize(branch2_d, pipeSizes);
+                                
+                                let mainDrain_size;
+                                if (mainPipe_size <= 25) mainDrain_size = 60;
+                                else if (mainPipe_size <= 40) mainDrain_size = 90;
+                                else mainDrain_size = 114;
+
+                                const pressureClass = vals.highestPoint <= 20 ? 'PN10' : 'PN16';
+
+                                const resultText = `
+                                    <div class="space-y-3">
+                                        <p><strong>Ống cấp chính:</strong> Ø${mainPipe_size} mm (PPR/HDPE, ${pressureClass})</p>
+                                        <p><strong>Ống nhánh cấp 1:</strong> Ø${branch1_size} mm (PPR/HDPE)</p>
+                                        <p><strong>Ống nhánh cấp 2:</strong> Ø${branch2_size} mm (PPR)</p>
+                                        <p><strong>Ống thoát chính:</strong> Ø${mainDrain_size} mm (uPVC)</p>
+                                    </div>
+                                `;
+
+                                return {
+                                    type: 'result',
+                                    value: `Kết quả gợi ý`,
+                                    unit: `(Dựa trên lưu lượng đỉnh ${peakFlow_m3h.toFixed(2)} m³/h)`,
+                                    note: resultText
+                                };
+                            },
+                            formulaText: 'D = √((4 × Q) / (π × v))'
+                        }
+                    }
+                },
+                'chieu_sang': {
+                    name: 'Chiếu Sáng',
+                    icon: `<svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-orange-400" viewBox="0 0 20 20" fill="currentColor"><path d="M11 3a1 1 0 100 2h.01a1 1 0 100-2H11zM12 2.251A7.5 7.5 0 004.75 9.75c0 4.142 3.358 7.5 7.5 7.5s7.5-3.358 7.5-7.5A7.5 7.5 0 0012 2.251zM12 15.5a5.5 5.5 0 110-11 5.5 5.5 0 010 11z" /></svg>`,
+                    calculations: {
+                        'tinhToanChieuSang': {
+                            name: 'Tính toán số lượng đèn',
+                            inputs: [
+                                { label: 'Chiều dài không gian (m)', id: 'length', unit: 'm' },
+                                { label: 'Chiều rộng không gian (m)', id: 'width', unit: 'm' },
+                                { label: 'Cao độ treo đèn (từ đèn đến sàn) (m)', id: 'mountingHeight', unit: 'm', default: 2.8 },
+                                { label: 'Chức năng (Chọn để có độ rọi gợi ý)', id: 'roomPurpose', type: 'select', options: illuminanceStandards, default: 500 },
+                                { label: 'Độ rọi mong muốn (Lux)', id: 'illuminance', unit: 'Lux', default: 500 },
+                                { label: 'Màu sơn tường/trần (Hệ số sử dụng)', id: 'reflectivity', type: 'select', options: reflectivityOptions, default: 0.7 },
+                                { label: 'Loại đèn sử dụng', id: 'lampType', type: 'select', options: lampTypes, default: 4000 },
+                                { label: 'Quang thông của đèn (Lumen)', id: 'customLumen', unit: 'lm', 'showIf': {'id': 'lampType', 'value': 'custom'} }
+                            ],
+                            calculate: (vals) => {
+                                const area = vals.length * vals.width;
+                                const E = vals.illuminance;
+                                const UF_base = parseFloat(vals.reflectivity);
+                                const MF = 0.8; // Maintenance Factor
+                                
+                                let lumenPerLamp;
+                                if (vals.lampType === 'custom') {
+                                    if (isNaN(vals.customLumen) || vals.customLumen <= 0) throw new Error('Vui lòng nhập Quang thông hợp lệ.');
+                                    lumenPerLamp = vals.customLumen;
+                                } else {
+                                    lumenPerLamp = parseFloat(vals.lampType);
+                                }
+
+                                // Adjust UF based on mounting height. Simple linear adjustment.
+                                // Assumes base UF is for a standard height of 2.8m.
+                                const baseHeight = 2.8;
+                                const heightFactor = vals.mountingHeight > 0 ? (baseHeight / vals.mountingHeight) : 1;
+                                const UF_adjusted = UF_base * Math.min(1, heightFactor); // Cap factor at 1
+
+                                const totalLumen = (E * area) / (UF_adjusted * MF);
+                                const numLamps = Math.ceil(totalLumen / lumenPerLamp);
+
+                                return {
+                                    type: 'result',
+                                    value: `Số lượng đèn yêu cầu: ${numLamps} cái`,
+                                    unit: `(Tổng quang thông: ${Math.round(totalLumen).toLocaleString()} lm)`,
+                                    note: `Gợi ý: Bố trí đèn đều trong không gian để đảm bảo độ đồng đều ánh sáng.`
+                                };
+                            },
+                            formulaText: 'N = (E × A) / (Φ × UF × MF)'
                         }
                     }
                 }
@@ -467,7 +842,9 @@
             const inputFieldsContainer = document.getElementById('input-fields');
             const calculateBtn = document.getElementById('calculate-btn');
             const clearBtn = document.getElementById('clear-btn');
+            const homeBtn = document.getElementById('home-btn');
             const resultContainer = document.getElementById('result-container');
+            const supportSection = document.getElementById('support-section');
 
             let currentCategory = null;
 
@@ -501,7 +878,7 @@
                 calculationTitle.textContent = category.name;
                 
                 formulaSelect.innerHTML = '';
-                const calcOrder = ['chonCB1pha', 'chonCB3pha', 'chonDayDien1pha', 'chonDayDien3pha', 'tinhCongSuat1Pha', 'tinhCongSuat3Pha'];
+                const calcOrder = ['chonCB1pha', 'chonCB3pha', 'chonDayDien1pha', 'chonDayDien3pha', 'tinhCongSuat1Pha', 'tinhCongSuat3Pha', 'chonMayLanh', 'chonQuatThongGio', 'chonTietDienOngGio', 'coolingload', 'chonBomTangAp', 'chonBomDayBon', 'chonBonChuaNuoc', 'chonOngCapThoat', 'flowrate', 'tinhToanChieuSang'];
                 const sortedCalcs = Object.keys(category.calculations).sort((a, b) => {
                     const indexA = calcOrder.indexOf(a);
                     const indexB = calcOrder.indexOf(b);
@@ -529,6 +906,7 @@
                 
                 inputFieldsContainer.innerHTML = '';
                 resultContainer.innerHTML = '';
+                supportSection.style.display = 'none';
 
                 if (calculation.formulaText) {
                     formulaTextEl.textContent = calculation.formulaText;
@@ -604,6 +982,15 @@
                     // Initial call
                     updateVisibility();
                 });
+
+                // Special handler for illuminance standard
+                const roomPurposeEl = document.getElementById('roomPurpose');
+                const illuminanceEl = document.getElementById('illuminance');
+                if(roomPurposeEl && illuminanceEl) {
+                    roomPurposeEl.addEventListener('change', () => {
+                        illuminanceEl.value = roomPurposeEl.value;
+                    });
+                }
             }
 
 
@@ -614,6 +1001,7 @@
                 let hasError = false;
 
                 resultContainer.innerHTML = '';
+                supportSection.style.display = 'none';
 
                 calculation.inputs.forEach(input => {
                     const wrapper = document.getElementById(`wrapper-${input.id}`);
@@ -667,13 +1055,14 @@
 
                 resultContainer.innerHTML = `
                     <div id="${cardId}" class="${cardClasses}">
-                        <p class="text-2xl md:text-3xl font-bold">
+                        <div class="text-2xl md:text-3xl font-bold">
                             ${result.value}
-                        </p>
+                        </div>
                         <p class="text-lg md:text-xl font-medium">${result.unit}</p>
                         ${result.note ? `<div class="text-sm pt-2 border-t border-gray-200 mt-2">${result.note}</div>` : ''}
                     </div>
                 `;
+                supportSection.style.display = 'block';
             }
             
             function showError(message) {
@@ -683,6 +1072,7 @@
                         <p>${message}</p>
                     </div>
                 `;
+                supportSection.style.display = 'none';
             }
 
             function clearFields() {
@@ -699,16 +1089,21 @@
                     field.classList.remove('border-red-500');
                 });
                 resultContainer.innerHTML = '';
+                supportSection.style.display = 'none';
                 const calc = formulas[currentCategory].calculations[formulaSelect.value];
                 setupConditionalInputs(calc.inputs);
             }
 
             // --- EVENT LISTENERS ---
-            backBtn.addEventListener('click', () => {
+            function goToHome() {
                 showScreen('category-screen');
                 resultContainer.innerHTML = '';
-            });
+                supportSection.style.display = 'none';
+            }
 
+            backBtn.addEventListener('click', goToHome);
+            homeBtn.addEventListener('click', goToHome);
+            
             formulaSelect.addEventListener('change', displayFormulaInputs);
             calculateBtn.addEventListener('click', performCalculation);
             clearBtn.addEventListener('click', clearFields);
@@ -719,4 +1114,3 @@
     </script>
 </body>
 </html>
-
