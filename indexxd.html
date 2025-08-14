@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="google-site-verification" content="LN8vjhgl2L8amNIRx59azvFPVaqGBSZP03KDS9u4dok" />
+    <title>Tính Toán Nhanh Cho Kỹ Sư - VLXD</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-N7YBDJMQXE"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-N7YBDJMQXE');
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f2f5;
+        }
+        .card {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+        }
+        .btn {
+            transition: all 0.2s ease;
+            transform: scale(1);
+        }
+        .btn:active {
+            transform: scale(0.97);
+        }
+        .input-field, .select-field {
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            padding: 12px;
+            width: 100%;
+            font-size: 1rem;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+            background-color: #fff;
+        }
+        .input-field:focus, .select-field:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.4);
+        }
+        #result-card {
+            border-left: 5px solid #10b981;
+        }
+        #warning-card {
+             border-left: 5px solid #f97316;
+        }
+        #error-card {
+            border-left: 5px solid #ef4444;
+        }
+    </style>
+</head>
+<body class="antialiased text-gray-800">
+
+    <div id="app" class="max-w-xl mx-auto p-4 md:p-6">
+        
+        <!-- Header -->
+        <header class="text-center mb-6">
+            <h1 class="text-2xl md:text-3xl font-bold text-gray-900">Sổ Tay Kỹ Sư</h1>
+            <p class="text-gray-600 mt-1">Vật liệu Xây dựng</p>
+        </header>
+
+        <!-- Main Content -->
+        <main>
+            <div class="card p-6">
+                <div class="flex items-center mb-6">
+                    <a href="./index.html" class="btn p-2 rounded-full hover:bg-gray-100 mr-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                        </svg>
+                    </a>
+                    <h2 class="text-xl font-bold">Vật liệu Xây dựng</h2>
+                </div>
+
+                <!-- Formula Selection -->
+                <div class="mb-6">
+                    <label for="formula-select" class="block text-sm font-medium text-gray-700 mb-1">Chọn công thức:</label>
+                    <select id="formula-select" class="w-full p-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                        <!-- Options will be inserted here by JS -->
+                    </select>
+                </div>
+
+                <!-- Formula Display -->
+                <div id="formula-text-container" class="text-center bg-blue-50 text-blue-800 p-3 rounded-lg mb-6" style="display: none;">
+                    <p class="font-mono text-sm md:text-base" id="formula-text"></p>
+                </div>
+                
+                <!-- Input Fields -->
+                <div id="input-fields" class="space-y-4 mb-6">
+                    <!-- Input fields will be inserted here by JS -->
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                    <button id="calculate-btn" class="btn col-span-2 sm:col-span-1 w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        Tính Toán
+                    </button>
+                     <button id="clear-btn" class="btn w-full bg-gray-200 text-gray-700 font-bold py-3 px-4 rounded-lg hover:bg-gray-300">
+                        Xoá
+                    </button>
+                    <a href="./index.html" class="btn w-full bg-gray-200 text-gray-700 font-bold py-3 px-4 rounded-lg hover:bg-gray-300 flex items-center justify-center">
+                        Trang chủ
+                    </a>
+                </div>
+
+                <!-- Result Display -->
+                <div id="result-container" class="mt-6">
+                    <!-- Result or error will be shown here -->
+                </div>
+
+                <!-- Support Section -->
+                <div id="support-section" class="mt-8" style="display: none;">
+                    <div class="card p-6 text-center bg-gray-50">
+                        <h3 class="text-lg font-semibold text-gray-800">Thấy ứng dụng hữu ích?</h3>
+                        <p class="text-sm text-gray-600 mt-2 max-w-md mx-auto">
+                            Mọi sự đóng góp, dù nhỏ nhất, đều là nguồn động viên to lớn để tác giả duy trì và phát triển thêm nhiều tính năng mới.
+                        </p>
+                        <div class="mt-4 flex flex-col md:flex-row items-center justify-center gap-6">
+                            <div class="flex-shrink-0">
+                                <img src="ma-qr.png" alt="QR Code Ung Ho" class="w-36 h-36 rounded-lg object-cover" onerror="this.onerror=null;this.src='https://placehold.co/144x144/e2e8f0/334155?text=QR+Code';">
+                            </div>
+                            <div class="text-left text-sm space-y-1">
+                                <p><strong>Ngân hàng:</strong> ACB</p>
+                                <p><strong>Số tài khoản:</strong> 33505737</p>
+                                <p><strong>Chủ tài khoản:</strong> HUYNH THI KIM DINH</p>
+                            </div>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-4 italic">
+                            Đây là hình thức ủng hộ hoàn toàn tự nguyện, không phải là một khoản phí bắt buộc để sử dụng ứng dụng.
+                        </p>
+                        <div class="border-t border-gray-200 mt-4 pt-4 text-xs text-gray-500">
+                            <p>Góp ý hoặc báo lỗi, vui lòng liên hệ:</p>
+                            <p class="font-semibold">hocthuoclong2k@gmail.com</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- DATA ---
+            const formulas = {
+                'vlxd': {
+                    name: 'Vật liệu Xây dựng',
+                    calculations: {
+                        'tinhVatLieuTuong': {
+                            name: 'Tính toán vật liệu xây tường',
+                            inputs: [
+                                { label: 'Chiều dài tường (m)', id: 'length', unit: 'm' },
+                                { label: 'Chiều cao tường (m)', id: 'height', unit: 'm' },
+                                { label: 'Loại tường xây', id: 'wallType', type: 'select', options: [{value: '100', text: 'Tường 100'}, {value: '200', text: 'Tường 200'}], default: '100' },
+                                { label: 'Loại gạch', id: 'brickType', type: 'select', options: [
+                                    {value: 'ong', text: 'Gạch ống (8x8x18 cm)'}, 
+                                    {value: 'the', text: 'Gạch thẻ (4x8x18 cm)'},
+                                    {value: 'khongnung', text: 'Gạch không nung (20x10x6 cm)'},
+                                    {value: 'aac', text: 'Gạch bê tông nhẹ - AAC (60x20x10 cm)'}
+                                ], default: 'ong' }
+                            ],
+                            calculate: (vals) => {
+                                const area = vals.length * vals.height;
+                                let bricksPerSqm, mortarPerSqm, resultText;
+
+                                if (vals.brickType === 'aac') {
+                                    bricksPerSqm = 9;
+                                    const specialMortar_kg_per_m3 = 25;
+                                    const wallVolume_m3 = area * 0.1;
+                                    const totalSpecialMortar_kg = wallVolume_m3 * specialMortar_kg_per_m3;
+                                    const totalBricks = area * bricksPerSqm;
+
+                                    resultText = `
+                                        <div class="space-y-3 text-left">
+                                            <p><strong>- Gạch AAC:</strong> ${Math.ceil(totalBricks).toLocaleString()} viên</p>
+                                            <p><strong>- Vữa chuyên dụng:</strong> ${totalSpecialMortar_kg.toFixed(1)} kg</p>
+                                            <p class="text-xs italic text-gray-500">Lưu ý: Tường gạch AAC thường là tường 100.</p>
+                                        </div>
+                                    `;
+                                } else {
+                                    if (vals.wallType === '100') {
+                                        if (vals.brickType === 'ong') { bricksPerSqm = 68; mortarPerSqm = 0.025; } 
+                                        else if (vals.brickType === 'the') { bricksPerSqm = 130; mortarPerSqm = 0.03; }
+                                        else { bricksPerSqm = 84; mortarPerSqm = 0.02; }
+                                    } else {
+                                        if (vals.brickType === 'ong') { bricksPerSqm = 136; mortarPerSqm = 0.05; }
+                                        else if (vals.brickType === 'the') { bricksPerSqm = 260; mortarPerSqm = 0.06; }
+                                        else { bricksPerSqm = 168; mortarPerSqm = 0.04; }
+                                    }
+
+                                    const totalBricks = area * bricksPerSqm;
+                                    const totalMortar_m3 = area * mortarPerSqm;
+                                    const totalCement_kg = totalMortar_m3 * 250;
+                                    const totalCement_bags = totalCement_kg / 50;
+                                    const totalSand_m3 = totalMortar_m3 * 1.1;
+
+                                    resultText = `
+                                        <div class="space-y-3 text-left">
+                                            <p><strong>- Gạch:</strong> ${Math.ceil(totalBricks).toLocaleString()} viên</p>
+                                            <p><strong>- Xi măng:</strong> ${Math.ceil(totalCement_bags).toLocaleString()} bao (50kg)</p>
+                                            <p><strong>- Cát xây:</strong> ${totalSand_m3.toFixed(2)} m³</p>
+                                            <p class="text-xs italic text-gray-500 border-t pt-2 mt-2"><strong>Tỉ lệ trộn vữa (mác 75):</strong> 1 Xi măng : 4 Cát : Nước vừa đủ.</p>
+                                        </div>
+                                    `;
+                                }
+
+                                let reinforcementNote = '';
+                                const needsReinforcement = vals.length > 3.5 || vals.height > 2.5;
+
+                                if (needsReinforcement) {
+                                    reinforcementNote += `<div class="mt-4 pt-4 border-t border-gray-200"><h4 class="font-bold text-sm text-amber-700">Lưu ý gia cố:</h4>`;
+                                    
+                                    if (vals.length > 3.5) {
+                                        const numColumns = Math.floor(vals.length / 3.5);
+                                        const colWidth = vals.wallType === '100' ? 0.1 : 0.2;
+                                        const colDepth = 0.2;
+                                        const concreteVolume = numColumns * colWidth * colDepth * vals.height;
+                                        const totalCement = concreteVolume * 350;
+                                        const totalSand = concreteVolume * 0.5;
+                                        const totalStone = concreteVolume * 0.9;
+                                        const mainSteel_kg = numColumns * 4 * vals.height * 0.888; // 4Ø12
+                                        const stirrup_circumference = 2 * (colWidth - 0.05) + 2 * (colDepth - 0.05);
+                                        const stirrups_per_column = Math.ceil(vals.height / 0.2);
+                                        const stirrupSteel_kg = numColumns * stirrups_per_column * stirrup_circumference * 0.222; // Ø6a200
+                                        const formworkArea = numColumns * vals.height * (colWidth + 2 * colDepth);
+
+                                        reinforcementNote += `<p class="text-xs italic text-gray-600">Tường dài > 3.5m, cần bổ sung ${numColumns} cột bổ trụ.</p>
+                                            <p class="font-semibold text-sm mt-2">Vật liệu cho ${numColumns} bổ trụ (${colWidth*1000}x${colDepth*1000}mm):</p>
+                                            <div class="space-y-1 text-left text-sm pl-4">
+                                                <p><strong>- Xi măng:</strong> ${Math.ceil(totalCement / 50)} bao</p>
+                                                <p><strong>- Cát vàng:</strong> ${totalSand.toFixed(2)} m³</p>
+                                                <p><strong>- Đá 1x2:</strong> ${totalStone.toFixed(2)} m³</p>
+                                                <p><strong>- Thép chủ (4Ø12):</strong> ${mainSteel_kg.toFixed(1)} kg</p>
+                                                <p><strong>- Thép đai (Ø6a200):</strong> ${stirrupSteel_kg.toFixed(1)} kg</p>
+                                                <p><strong>- Cốt pha:</strong> ${formworkArea.toFixed(2)} m²</p>
+                                            </div>`;
+                                    }
+
+                                    if (vals.height > 2.5) {
+                                        const numBeams = Math.floor(vals.height / 2.5);
+                                        const beamWidth = vals.wallType === '100' ? 0.1 : 0.2;
+                                        const beamHeight = 0.1;
+                                        const concreteVolume = numBeams * vals.length * beamWidth * beamHeight;
+                                        const totalCement = concreteVolume * 350;
+                                        const totalSand = concreteVolume * 0.5;
+                                        const totalStone = concreteVolume * 0.9;
+                                        const mainSteel_kg = numBeams * 2 * vals.length * 0.617; // 2Ø10
+                                        const stirrup_circumference = 2 * (beamWidth - 0.05) + 2 * (beamHeight - 0.05);
+                                        const num_stirrups = numBeams * Math.ceil(vals.length / 0.2);
+                                        const stirrupSteel_kg = num_stirrups * stirrup_circumference * 0.222; // Ø6a200
+                                        const formworkArea = numBeams * vals.length * (beamWidth + 2 * beamHeight);
+
+                                        reinforcementNote += `<p class="text-xs italic text-gray-600 mt-2">Tường cao > 2.5m, cần bổ sung ${numBeams} dầm giằng tường (mỗi 2.5m).</p>
+                                            <p class="font-semibold text-sm mt-2">Vật liệu cho ${numBeams} dầm giằng (${beamWidth*1000}x${beamHeight*1000}mm):</p>
+                                            <div class="space-y-1 text-left text-sm pl-4">
+                                                <p><strong>- Xi măng:</strong> ${Math.ceil(totalCement / 50)} bao</p>
+                                                <p><strong>- Cát vàng:</strong> ${totalSand.toFixed(2)} m³</p>
+                                                <p><strong>- Đá 1x2:</strong> ${totalStone.toFixed(2)} m³</p>
+                                                <p><strong>- Thép chủ (2Ø10):</strong> ${mainSteel_kg.toFixed(1)} kg</p>
+                                                <p><strong>- Thép đai (Ø6a200):</strong> ${stirrupSteel_kg.toFixed(1)} kg</p>
+                                                <p><strong>- Cốt pha:</strong> ${formworkArea.toFixed(2)} m²</p>
+                                            </div>`;
+                                    }
+                                    reinforcementNote += `<p class="text-xs italic text-gray-500 border-t pt-2 mt-2"><strong>Tỉ lệ trộn bê tông (Mác 200):</strong> 1 Xi măng : 2 Cát : 4 Đá (Tỉ lệ Nước/Xi măng ≈ 0.5).</p></div>`;
+                                    resultText += reinforcementNote;
+                                }
+
+
+                                return {
+                                    type: 'result',
+                                    value: `Vật liệu cần thiết`,
+                                    unit: `(Cho ${area.toFixed(2)} m² tường)`,
+                                    note: resultText
+                                };
+                            },
+                            formulaText: 'Vật liệu = Diện tích × Định mức'
+                        },
+                        'tinhVuaToTrat': {
+                            name: 'Tính toán vật liệu tô trát tường',
+                            inputs: [
+                                { label: 'Chiều dài tường (m)', id: 'length', unit: 'm' },
+                                { label: 'Chiều cao tường (m)', id: 'height', unit: 'm' },
+                                { label: 'Số mặt tô', id: 'sides', type: 'select', options: [{value: 1, text: '1 mặt'}, {value: 2, text: '2 mặt'}], default: 2 },
+                                { label: 'Độ dày lớp vữa tô (mm)', id: 'thickness', unit: 'mm', default: 15 },
+                                { label: 'Mác vữa', id: 'mortarGrade', type: 'select', options: [{value: 75, text: 'Mác 75'}, {value: 100, text: 'Mác 100'}, {value: 50, text: 'Mác 50'}], default: 75 }
+                            ],
+                            calculate: (vals) => {
+                                const area = vals.length * vals.height * vals.sides;
+                                const volume_m3 = area * (vals.thickness / 1000);
+                                
+                                let cementPerM3, sandPerM3, ratioText;
+                                switch (parseInt(vals.mortarGrade)) {
+                                    case 100:
+                                        cementPerM3 = 320; sandPerM3 = 1.05; ratioText = '1 Xi măng : 3 Cát'; break;
+                                    case 50:
+                                        cementPerM3 = 180; sandPerM3 = 1.15; ratioText = '1 Xi măng : 5 Cát'; break;
+                                    default: // Mác 75
+                                        cementPerM3 = 250; sandPerM3 = 1.1; ratioText = '1 Xi măng : 4 Cát'; break;
+                                }
+
+                                const totalCement_kg = volume_m3 * cementPerM3;
+                                const totalCement_bags = totalCement_kg / 50;
+                                const totalSand_m3 = volume_m3 * sandPerM3;
+
+                                 const resultText = `
+                                    <div class="space-y-3 text-left">
+                                        <p><strong>- Xi măng:</strong> ${Math.ceil(totalCement_bags).toLocaleString()} bao (50kg)</p>
+                                        <p><strong>- Cát tô:</strong> ${totalSand_m3.toFixed(2)} m³</p>
+                                        <p class="text-xs italic text-gray-500 border-t pt-2 mt-2"><strong>Tỉ lệ trộn vữa (Mác ${vals.mortarGrade}):</strong> ${ratioText} : Nước vừa đủ.</p>
+                                    </div>
+                                `;
+
+                                return {
+                                    type: 'result',
+                                    value: `Vật liệu cần thiết`,
+                                    unit: `(Cho ${area.toFixed(2)} m² tường)`,
+                                    note: resultText
+                                };
+                            },
+                            formulaText: 'Vật liệu = (Diện tích × Độ dày) × Định mức'
+                        }
+                    }
+                }
+            };
+
+            // --- DOM ELEMENTS ---
+            const formulaSelect = document.getElementById('formula-select');
+            const formulaTextContainer = document.getElementById('formula-text-container');
+            const formulaTextEl = document.getElementById('formula-text');
+            const inputFieldsContainer = document.getElementById('input-fields');
+            const calculateBtn = document.getElementById('calculate-btn');
+            const clearBtn = document.getElementById('clear-btn');
+            const resultContainer = document.getElementById('result-container');
+            const supportSection = document.getElementById('support-section');
+
+            const currentCategory = 'vlxd'; // Hardcoded for this page
+
+            // --- FUNCTIONS ---
+            
+            function displayFormulaInputs() {
+                const calcKey = formulaSelect.value;
+                if (!formulas[currentCategory].calculations[calcKey]) return;
+
+                const calculation = formulas[currentCategory].calculations[calcKey];
+                
+                inputFieldsContainer.innerHTML = '';
+                resultContainer.innerHTML = '';
+                supportSection.style.display = 'none';
+
+                if (calculation.formulaText) {
+                    formulaTextEl.textContent = calculation.formulaText;
+                    formulaTextContainer.style.display = 'block';
+                } else {
+                    formulaTextContainer.style.display = 'none';
+                }
+
+                calculation.inputs.forEach(input => {
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'input-wrapper';
+                    wrapper.id = `wrapper-${input.id}`;
+
+                    const label = document.createElement('label');
+                    label.htmlFor = input.id;
+                    label.className = "block text-sm font-medium text-gray-700 mb-1";
+                    label.textContent = input.label;
+                    wrapper.appendChild(label);
+
+                    if (input.type === 'select') {
+                        const selectEl = document.createElement('select');
+                        selectEl.id = input.id;
+                        selectEl.className = 'select-field';
+                        input.options.forEach(opt => {
+                            const optionEl = document.createElement('option');
+                            optionEl.value = opt.value;
+                            optionEl.textContent = opt.text;
+                            if (String(opt.value) === String(input.default)) {
+                                optionEl.selected = true;
+                            }
+                            selectEl.appendChild(optionEl);
+                        });
+                        wrapper.appendChild(selectEl);
+                    } else {
+                        const inputEl = document.createElement('input');
+                        inputEl.type = 'number';
+                        inputEl.step = 'any';
+                        inputEl.id = input.id;
+                        inputEl.placeholder = input.unit || '';
+                        inputEl.className = 'input-field';
+                        if (input.default) {
+                            inputEl.value = input.default;
+                        }
+                        wrapper.appendChild(inputEl);
+                    }
+                    inputFieldsContainer.appendChild(wrapper);
+                });
+            }
+
+            function performCalculation() {
+                const calcKey = formulaSelect.value;
+                const calculation = formulas[currentCategory].calculations[calcKey];
+                const values = {};
+                let hasError = false;
+
+                resultContainer.innerHTML = '';
+                supportSection.style.display = 'none';
+
+                calculation.inputs.forEach(input => {
+                    const inputEl = document.getElementById(input.id);
+                    const rawValue = inputEl.value;
+
+                    if (rawValue === '' && !input.optional) {
+                        showError(`Vui lòng nhập giá trị hợp lệ cho "${input.label}".`);
+                        inputEl.classList.add('border-red-500');
+                        hasError = true;
+                        return;
+                    }
+                    
+                    inputEl.classList.remove('border-red-500');
+                    
+                    if (input.type === 'select') {
+                         values[input.id] = rawValue;
+                    } else {
+                        const numericValue = parseFloat(rawValue);
+                        if (isNaN(numericValue) && rawValue !== '' && !input.optional) {
+                             showError(`Giá trị không hợp lệ cho "${input.label}".`);
+                             inputEl.classList.add('border-red-500');
+                             hasError = true;
+                        } else {
+                            values[input.id] = numericValue;
+                        }
+                    }
+                });
+
+                if (hasError) return;
+
+                try {
+                    const result = calculation.calculate(values);
+                    showResult(result);
+                } catch (error) {
+                    showError(error.message);
+                }
+            }
+
+            function showResult(result) {
+                let cardId = 'result-card';
+                let cardClasses = 'card p-5 space-y-2';
+                if (result.type === 'warning') {
+                    cardId = 'warning-card';
+                    cardClasses = 'card p-5 space-y-2 bg-orange-50 text-orange-800';
+                }
+
+                resultContainer.innerHTML = `
+                    <div id="${cardId}" class="${cardClasses}">
+                        <div class="text-2xl md:text-3xl font-bold">
+                            ${result.value}
+                        </div>
+                        <p class="text-lg md:text-xl font-medium">${result.unit}</p>
+                        ${result.note ? `<div class="text-sm pt-2 border-t border-gray-200 mt-2">${result.note}</div>` : ''}
+                    </div>
+                `;
+                supportSection.style.display = 'block';
+            }
+            
+            function showError(message) {
+                 resultContainer.innerHTML = `
+                    <div id="error-card" class="card p-4 bg-red-50 text-red-700">
+                        <p class="font-semibold">Lỗi!</p>
+                        <p>${message}</p>
+                    </div>
+                `;
+                supportSection.style.display = 'none';
+            }
+
+            function clearFields() {
+                inputFieldsContainer.querySelectorAll('input, select').forEach(field => {
+                    const fieldId = field.id;
+                    const calcKey = formulaSelect.value;
+                    const calc = formulas[currentCategory].calculations[calcKey];
+                    const inputDef = calc.inputs.find(i => i.id === fieldId);
+                    if (inputDef && inputDef.default) {
+                        field.value = inputDef.default;
+                    } else {
+                        field.value = '';
+                    }
+                    field.classList.remove('border-red-500');
+                });
+                resultContainer.innerHTML = '';
+                supportSection.style.display = 'none';
+            }
+
+            // --- INITIALIZATION ---
+            function initializePage() {
+                const category = formulas[currentCategory];
+                const calcOrder = ['tinhVatLieuTuong', 'tinhVuaToTrat'];
+                
+                calcOrder.forEach(calcKey => {
+                    if (category.calculations[calcKey]) {
+                        const option = document.createElement('option');
+                        option.value = calcKey;
+                        option.textContent = category.calculations[calcKey].name;
+                        formulaSelect.appendChild(option);
+                    }
+                });
+
+                displayFormulaInputs();
+            }
+
+            formulaSelect.addEventListener('change', displayFormulaInputs);
+            calculateBtn.addEventListener('click', performCalculation);
+            clearBtn.addEventListener('click', clearFields);
+
+            initializePage();
+        });
+    </script>
+</body>
+</html>
