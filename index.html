@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tính Toán Nhanh Cho Kỹ Sư</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f2f5;
+        }
+        .card {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+        }
+        .btn {
+            transition: all 0.2s ease;
+            transform: scale(1);
+        }
+        .btn:active {
+            transform: scale(0.97);
+        }
+        .input-field, .select-field {
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            padding: 12px;
+            width: 100%;
+            font-size: 1rem;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+            background-color: #fff;
+        }
+        .input-field:focus, .select-field:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.4);
+        }
+        #result-card {
+            border-left: 5px solid #10b981;
+        }
+        #warning-card {
+             border-left: 5px solid #f97316;
+        }
+        #error-card {
+            border-left: 5px solid #ef4444;
+        }
+        .screen {
+            display: none;
+        }
+        .screen.active {
+            display: block;
+        }
+        .input-wrapper {
+            /* Wrapper for conditional inputs */
+        }
+    </style>
+</head>
+<body class="antialiased text-gray-800">
+
+    <div id="app" class="max-w-xl mx-auto p-4 md:p-6">
+        
+        <!-- Header -->
+        <header class="text-center mb-6">
+            <h1 class="text-2xl md:text-3xl font-bold text-gray-900">Sổ Tay Kỹ Sư</h1>
+            <p class="text-gray-600 mt-1">Công cụ tính toán nhanh tại công trường</p>
+        </header>
+
+        <!-- Main Content -->
+        <main>
+            <!-- Screen 1: Category Selection -->
+            <div id="category-screen" class="screen active">
+                <div class="card p-6">
+                    <h2 class="text-lg font-semibold mb-4 text-center">Chọn chuyên ngành của bạn</h2>
+                    <div id="category-buttons" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <!-- Category buttons will be inserted here by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Screen 2: Calculation Screen -->
+            <div id="calculation-screen" class="screen">
+                <div class="card p-6">
+                    <div class="flex items-center mb-6">
+                        <button id="back-btn" class="btn p-2 rounded-full hover:bg-gray-100 mr-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                            </svg>
+                        </button>
+                        <h2 id="calculation-title" class="text-xl font-bold"></h2>
+                    </div>
+
+                    <!-- Formula Selection -->
+                    <div class="mb-6">
+                        <label for="formula-select" class="block text-sm font-medium text-gray-700 mb-1">Chọn công thức:</label>
+                        <select id="formula-select" class="w-full p-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                            <!-- Options will be inserted here by JS -->
+                        </select>
+                    </div>
+
+                    <!-- Formula Display -->
+                    <div id="formula-text-container" class="text-center bg-blue-50 text-blue-800 p-3 rounded-lg mb-6" style="display: none;">
+                        <p class="font-mono text-sm md:text-base" id="formula-text"></p>
+                    </div>
+                    
+                    <!-- Input Fields -->
+                    <div id="input-fields" class="space-y-4 mb-6">
+                        <!-- Input fields will be inserted here by JS -->
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <button id="calculate-btn" class="btn w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                            Tính Toán
+                        </button>
+                         <button id="clear-btn" class="btn w-full bg-gray-200 text-gray-700 font-bold py-3 px-4 rounded-lg hover:bg-gray-300">
+                            Xoá
+                        </button>
+                    </div>
+
+                    <!-- Result Display -->
+                    <div id="result-container" class="mt-6">
+                        <!-- Result or error will be shown here -->
+                    </div>
+                </div>
+            </div>
+        </main>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- DATA ---
+            const cosphiOptions = [
+                { value: 0.9, text: 'Tổng thể dự án (khuyến nghị) - 0.9' },
+                { value: 0.85, text: 'Động cơ (thông thường) - 0.85' },
+                { value: 0.92, text: 'Đèn huỳnh quang/LED - 0.92' },
+                { value: 1.0, text: 'Tải thuần trở (bếp, nóng lạnh) - 1.0' },
+                { value: 1.0, text: 'Dòng điện một chiều (DC) - 1.0' },
+                { value: 0.7, text: 'Thiết bị điện tử cũ - 0.7' }
+            ];
+
+            const materialOptions = [
+                { value: 0.0175, text: 'Dây đồng (ρ ≈ 0.0175)' },
+                { value: 0.0282, text: 'Dây nhôm (ρ ≈ 0.0282)' }
+            ];
+
+            const environmentOptions = [
+                { value: 'indoor', text: 'Đi trong nhà, trong ống luồn' },
+                { value: 'underground', text: 'Đi ngầm trực tiếp trong đất' },
+                { value: 'aerial', text: 'Đi trên không (treo trên cột)' }
+            ];
+
+            const formulas = {
+                'dien': {
+                    name: 'Kỹ Thuật Điện',
+                    icon: `<svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>`,
+                    calculations: {
+                        'chonCB1pha': {
+                            name: 'Chọn CB cho tải 1 pha / DC',
+                            inputs: [
+                                { label: 'Công suất tải (P) - Đơn vị Watt (W)', id: 'p', unit: 'W' },
+                                { label: 'Điện áp (U) - Đơn vị Volt (V)', id: 'u', unit: 'V', default: 220 },
+                                { label: 'Loại tải / Hệ số công suất (cos φ)', id: 'cosphi', type: 'select', options: cosphiOptions, default: 0.85 }
+                            ],
+                            calculate: (vals) => {
+                                const i_load = vals.p / (vals.u * vals.cosphi);
+                                const i_cb = i_load * 1.25; // Safety factor
+                                const poles = (vals.cosphi === 1.0 && vals.u < 1000) ? '2P (cho DC)' : '1P/2P';
+
+                                if (vals.u > 1000) {
+                                    return {
+                                        type: 'warning',
+                                        value: `Dòng tải sử dụng: ${i_load.toFixed(2)} A`,
+                                        unit: `Điện áp: ${vals.u}V`,
+                                        note: `<strong>Hệ thống trung/cao thế!</strong> Yêu cầu sử dụng VCB (Máy cắt chân không) và cần kỹ sư chuyên môn thiết kế.`
+                                    };
+                                }
+
+                                const standardMCBs = [6, 10, 16, 20, 25, 32, 40, 50, 63, 80, 100, 125];
+                                const standardMCCBs = [160, 200, 250, 400, 630, 800, 1000, 1250, 1600, 2000, 2500];
+                                
+                                let suggestedCB = standardMCBs.find(cb => cb >= i_cb);
+                                if (suggestedCB) {
+                                    return { 
+                                        type: 'result',
+                                        value: `Dòng tải sử dụng: ${i_load.toFixed(2)} A`, 
+                                        unit: `Gợi ý chọn: MCB ${suggestedCB} A`,
+                                        note: `Số cực đề xuất: ${poles}. Lưu ý chọn đúng loại CB AC/DC và dòng cắt (kA) phù hợp.`
+                                    };
+                                }
+
+                                suggestedCB = standardMCCBs.find(cb => cb >= i_cb);
+                                if (suggestedCB) {
+                                    return {
+                                        type: 'result',
+                                        value: `Dòng tải sử dụng: ${i_load.toFixed(2)} A`,
+                                        unit: `Gợi ý chọn: MCCB ${suggestedCB} A`,
+                                        note: `Số cực đề xuất: ${poles}. Lưu ý chọn đúng loại CB AC/DC và dòng cắt (kA) phù hợp.`
+                                    };
+                                }
+                                
+                                return {
+                                    type: 'warning',
+                                    value: `Dòng tải sử dụng: ${i_load.toFixed(2)} A`,
+                                    unit: `Yêu cầu CB > ${standardMCCBs[standardMCCBs.length - 1]} A`,
+                                    note: `<strong>Dòng tải quá lớn!</strong> Cần tham vấn kỹ sư thiết kế.`
+                                };
+                            },
+                            formulaText: 'I = P / (U × cosφ)'
+                        },
+                        'chonCB3pha': {
+                            name: 'Chọn CB cho tải 3 pha',
+                            inputs: [
+                                { label: 'Công suất tải (P) - Đơn vị Watt (W)', id: 'p', unit: 'W' },
+                                { label: 'Điện áp dây (U) - Đơn vị Volt (V)', id: 'u', unit: 'V', default: 380 },
+                                { label: 'Loại tải / Hệ số công suất (cos φ)', id: 'cosphi', type: 'select', options: cosphiOptions.filter(o => o.text.indexOf('DC') === -1), default: 0.9 }
+                            ],
+                            calculate: (vals) => {
+                                const i_load = vals.p / (vals.u * vals.cosphi * Math.sqrt(3));
+                                const i_cb = i_load * 1.25; // Safety factor
+                                
+                                if (vals.u > 1000) {
+                                    const standardVCBs = [4000, 5000, 6300];
+                                    const suggestedVCB = standardVCBs.find(cb => cb >= i_cb);
+                                    if (suggestedVCB) {
+                                        return {
+                                            type: 'result',
+                                            value: `Dòng tải sử dụng: ${i_load.toFixed(2)} A`,
+                                            unit: `Gợi ý chọn: VCB ${suggestedVCB} A (3P/4P)`,
+                                            note: `Áp dụng cho hệ thống trung/cao thế.`
+                                        };
+                                    } else if (i_cb > 6300) {
+                                         return {
+                                            type: 'warning',
+                                            value: `Dòng tải sử dụng: ${i_load.toFixed(2)} A`,
+                                            unit: `Yêu cầu CB > 6300 A`,
+                                            note: `<strong>Dòng tải cực lớn!</strong> Cần giải pháp chuyên dụng và tham vấn kỹ sư thiết kế.`
+                                        };
+                                    }
+                                    return {
+                                        type: 'warning',
+                                        value: `Dòng tải sử dụng: ${i_load.toFixed(2)} A`,
+                                        unit: `Điện áp: ${vals.u}V`,
+                                        note: `<strong>Hệ thống trung/cao thế!</strong> Yêu cầu sử dụng thiết bị đóng cắt chuyên dụng (LBS, VCB...) và cần kỹ sư thiết kế.`
+                                    };
+                                }
+
+                                const standardLVCBs = [6, 10, 16, 20, 25, 32, 40, 50, 63, 80, 100, 125, 160, 200, 250, 320, 400, 500, 630, 800, 1000, 1250, 1600, 2000, 2500, 3200, 4000, 5000, 6300];
+                                const suggestedCB = standardLVCBs.find(cb => cb >= i_cb);
+
+                                if (suggestedCB) {
+                                    let cbType = '';
+                                    if (suggestedCB <= 125) cbType = 'MCB';
+                                    else if (suggestedCB <= 2500) cbType = 'MCCB';
+                                    else cbType = 'ACB';
+
+                                    return { 
+                                        type: 'result',
+                                        value: `Dòng tải sử dụng: ${i_load.toFixed(2)} A`, 
+                                        unit: `Gợi ý chọn: ${cbType} ${suggestedCB} A (3P/4P)`,
+                                        note: `Lưu ý chọn dòng cắt ngắn mạch (kA) phù hợp với mạng điện.`
+                                    };
+                                } else {
+                                    return {
+                                        type: 'warning',
+                                        value: `Dòng tải sử dụng: ${i_load.toFixed(2)} A`,
+                                        unit: `Yêu cầu CB > ${standardLVCBs[standardLVCBs.length - 1]} A`,
+                                        note: `<strong>Dòng tải quá lớn!</strong> Cần tham vấn kỹ sư thiết kế.`
+                                    };
+                                }
+                            },
+                            formulaText: 'I = P / (√3 × U × cosφ)'
+                        },
+                        'chonDayDien1pha': {
+                            name: 'Chọn dây dẫn (1 pha / DC)',
+                            inputs: [
+                                { label: 'Tính toán theo', id: 'inputType', type: 'select', options: [{value: 'power', text: 'Công suất (W)'}, {value: 'current', text: 'Dòng điện (A)'}], default: 'power' },
+                                { label: 'Công suất tải (P) - Đơn vị Watt (W)', id: 'p', unit: 'W', 'showIf': {'id': 'inputType', 'value': 'power'} },
+                                { label: 'Dòng điện tải (I) - Đơn vị Ampe (A)', id: 'i', unit: 'A', 'showIf': {'id': 'inputType', 'value': 'current'} },
+                                { label: 'Điện áp (U) - Đơn vị Volt (V)', id: 'u', unit: 'V', default: 220 },
+                                { label: 'Loại vật liệu dây', id: 'material', type: 'select', options: materialOptions, default: 0.0175 },
+                                { label: 'Môi trường lắp đặt', id: 'environment', type: 'select', options: environmentOptions, default: 'indoor' },
+                                { label: 'Chiều dài dây (L) - Đơn vị mét (m)', id: 'l', unit: 'm' },
+                                { label: 'Độ sụt áp cho phép (%)', id: 'drop', unit: '%', default: 3 },
+                                { label: 'Loại tải / Hệ số công suất (cos φ)', id: 'cosphi', type: 'select', options: cosphiOptions, default: 0.85 }
+                            ],
+                            calculate: (vals) => {
+                                let i_load;
+                                if (vals.inputType === 'power') {
+                                    if (isNaN(vals.p)) throw new Error('Vui lòng nhập Công suất (P).');
+                                    i_load = vals.p / (vals.u * vals.cosphi);
+                                } else {
+                                    if (isNaN(vals.i)) throw new Error('Vui lòng nhập Dòng điện (I).');
+                                    i_load = vals.i;
+                                }
+
+                                const delta_u_max = vals.u * (vals.drop / 100);
+                                const rho = parseFloat(vals.material);
+                                const s_required = (2 * vals.l * i_load * rho) / delta_u_max;
+                                const standardWires = [1.5, 2.5, 4, 6, 10, 16, 25, 35, 50, 70, 95, 120, 150, 185, 240, 300, 400];
+                                const suggestedWire = standardWires.find(wire => wire >= s_required);
+                                const materialName = rho === 0.0175 ? 'đồng' : 'nhôm';
+                                
+                                let cableSuggestion = '';
+                                switch (vals.environment) {
+                                    case 'indoor': cableSuggestion = 'Gợi ý loại cáp: CV, CVV.'; break;
+                                    case 'underground': cableSuggestion = 'Gợi ý loại cáp: CXV, DSTA (có giáp).'; break;
+                                    case 'aerial': cableSuggestion = 'Gợi ý loại cáp: CXV, ASV (cáp vặn xoắn).'; break;
+                                }
+
+                                if(suggestedWire) {
+                                    return {
+                                        type: 'result',
+                                        value: `Tiết diện yêu cầu: ${s_required.toFixed(2)} mm²`,
+                                        unit: `Gợi ý chọn dây ${materialName}: ${suggestedWire} mm²`,
+                                        note: cableSuggestion
+                                    };
+                                } else {
+                                     return {
+                                        type: 'warning',
+                                        value: `Tiết diện yêu cầu: ${s_required.toFixed(2)} mm²`,
+                                        unit: `Yêu cầu dây > ${standardWires[standardWires.length - 1]} mm²`,
+                                        note: `<strong>Tiết diện quá lớn!</strong> Cần xem xét lại phương án đi dây hoặc chia tải.`
+                                    };
+                                }
+                            },
+                            formulaText: 'S = (2 × L × I × ρ) / ΔU'
+                        },
+                        'chonDayDien3pha': {
+                            name: 'Chọn dây dẫn (3 pha)',
+                            inputs: [
+                                { label: 'Tính toán theo', id: 'inputType', type: 'select', options: [{value: 'power', text: 'Công suất (W)'}, {value: 'current', text: 'Dòng điện (A)'}], default: 'power' },
+                                { label: 'Công suất tải (P) - Đơn vị Watt (W)', id: 'p', unit: 'W', 'showIf': {'id': 'inputType', 'value': 'power'} },
+                                { label: 'Dòng điện tải (I) - Đơn vị Ampe (A)', id: 'i', unit: 'A', 'showIf': {'id': 'inputType', 'value': 'current'} },
+                                { label: 'Điện áp dây (U) - Đơn vị Volt (V)', id: 'u', unit: 'V', default: 380 },
+                                { label: 'Loại vật liệu dây', id: 'material', type: 'select', options: materialOptions, default: 0.0175 },
+                                { label: 'Môi trường lắp đặt', id: 'environment', type: 'select', options: environmentOptions, default: 'indoor' },
+                                { label: 'Chiều dài dây (L) - Đơn vị mét (m)', id: 'l', unit: 'm' },
+                                { label: 'Độ sụt áp cho phép (%)', id: 'drop', unit: '%', default: 3 },
+                                { label: 'Loại tải / Hệ số công suất (cos φ)', id: 'cosphi', type: 'select', options: cosphiOptions.filter(o => o.text.indexOf('DC') === -1), default: 0.9 }
+                            ],
+                            calculate: (vals) => {
+                                let i_load;
+                                if (vals.inputType === 'power') {
+                                    if (isNaN(vals.p)) throw new Error('Vui lòng nhập Công suất (P).');
+                                    i_load = vals.p / (Math.sqrt(3) * vals.u * vals.cosphi);
+                                } else {
+                                    if (isNaN(vals.i)) throw new Error('Vui lòng nhập Dòng điện (I).');
+                                    i_load = vals.i;
+                                }
+
+                                const delta_u_line_max = vals.u * (vals.drop / 100);
+                                const rho = parseFloat(vals.material);
+                                const s_required = (Math.sqrt(3) * vals.l * i_load * rho) / delta_u_line_max;
+                                const standardWires = [1.5, 2.5, 4, 6, 10, 16, 25, 35, 50, 70, 95, 120, 150, 185, 240, 300, 400];
+                                const suggestedWire = standardWires.find(wire => wire >= s_required);
+                                const materialName = rho === 0.0175 ? 'đồng' : 'nhôm';
+                                
+                                let cableSuggestion = '';
+                                switch (vals.environment) {
+                                    case 'indoor': cableSuggestion = 'Gợi ý loại cáp: CV, CVV.'; break;
+                                    case 'underground': cableSuggestion = 'Gợi ý loại cáp: CXV, DSTA (có giáp).'; break;
+                                    case 'aerial': cableSuggestion = 'Gợi ý loại cáp: CXV, ASV (cáp vặn xoắn).'; break;
+                                }
+
+                                if(suggestedWire) {
+                                    return {
+                                        type: 'result',
+                                        value: `Tiết diện yêu cầu: ${s_required.toFixed(2)} mm²`,
+                                        unit: `Gợi ý chọn dây ${materialName}: ${suggestedWire} mm²`,
+                                        note: cableSuggestion
+                                    };
+                                } else {
+                                     return {
+                                        type: 'warning',
+                                        value: `Tiết diện yêu cầu: ${s_required.toFixed(2)} mm²`,
+                                        unit: `Yêu cầu dây > ${standardWires[standardWires.length - 1]} mm²`,
+                                        note: `<strong>Tiết diện quá lớn!</strong> Cần xem xét lại phương án đi dây hoặc chia tải.`
+                                    };
+                                }
+                            },
+                            formulaText: 'S = (√3 × L × I × ρ) / ΔU_line'
+                        },
+                        'tinhCongSuat1Pha': {
+                            name: 'Tính công suất 1 pha (P)',
+                            inputs: [
+                                { label: 'Điện áp (U) - Đơn vị Volt (V)', id: 'u', unit: 'V', default: 220 },
+                                { label: 'Dòng điện (I) - Đơn vị Ampe (A)', id: 'i', unit: 'A' },
+                                { label: 'Loại tải / Hệ số công suất (cos φ)', id: 'cosphi', type: 'select', options: cosphiOptions, default: 0.85 }
+                            ],
+                            calculate: (vals) => {
+                                const p = vals.u * vals.i * vals.cosphi;
+                                return { type: 'result', value: `Công suất: ${(p / 1000).toFixed(3)} kW`, unit: `(${p.toFixed(2)} W)` };
+                            },
+                            formulaText: 'P = U × I × cos(φ)'
+                        },
+                        'tinhCongSuat3Pha': {
+                            name: 'Tính công suất 3 pha (P)',
+                            inputs: [
+                                { label: 'Điện áp dây (U) - Đơn vị Volt (V)', id: 'u', unit: 'V', default: 380 },
+                                { label: 'Dòng điện (I) - Đơn vị Ampe (A)', id: 'i', unit: 'A' },
+                                { label: 'Loại tải / Hệ số công suất (cos φ)', id: 'cosphi', type: 'select', options: cosphiOptions.filter(o => o.text.indexOf('DC') === -1), default: 0.9 }
+                            ],
+                            calculate: (vals) => {
+                                const p = Math.sqrt(3) * vals.u * vals.i * vals.cosphi;
+                                return { type: 'result', value: `Công suất: ${(p / 1000).toFixed(3)} kW`, unit: `(${p.toFixed(2)} W)` };
+                            },
+                            formulaText: 'P = √3 × U × I × cos(φ)'
+                        }
+                    }
+                },
+                'nhietlanh': {
+                    name: 'Nhiệt - Điện Lạnh',
+                    icon: `<svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-blue-500" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM4.332 7.652a.5.5 0 01.734-.65l.02.022c.19.19.44.293.707.293s.517-.103.707-.293l.02-.022a.5.5 0 01.734.65l-.02.022a1.75 1.75 0 01-2.474 0l-.022-.022zm5.416 0a.5.5 0 01.734-.65l.02.022a1.75 1.75 0 012.474 2.474l-.02.022a.5.5 0 11-.734-.65l.02-.022c.19-.19.293-.44.293-.707s-.103-.517-.293-.707l-.02-.022a.5.5 0 010-.734zM10 14a4 4 0 003.536-2.002.5.5 0 11-.866-.5A3 3 0 0110 13a3 3 0 01-2.67-1.502.5.5 0 11-.866.5A4 4 0 0010 14z" clip-rule="evenodd" /></svg>`,
+                    calculations: {
+                        'coolingload': {
+                            name: 'Công suất lạnh (Qo)',
+                            inputs: [
+                                { label: 'Lưu lượng gió - Đơn vị m³/h', id: 'cfm', unit: 'm³/h' },
+                                { label: 'Chênh lệch nhiệt độ (ΔT) - Đơn vị °C', id: 'delta_t', unit: '°C' }
+                            ],
+                            calculate: (vals) => {
+                                const q_kw = (vals.cfm * 1.21 * vals.delta_t) / 3600;
+                                return { type: 'result', value: q_kw.toFixed(3), unit: 'kW' };
+                            },
+                            formulaText: 'Qo ≈ (V × 1.21 × ΔT) / 3600'
+                        }
+                    }
+                },
+                'nuoc': {
+                    name: 'Cấp Thoát Nước',
+                    icon: `<svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-cyan-500" viewBox="0 0 20 20" fill="currentColor"><path d="M5.5 16a3.5 3.5 0 01-3.5-3.5V5a.5.5 0 011 0v7.5a2.5 2.5 0 002.5 2.5h9a.5.5 0 010 1h-9z" /><path d="M17.293 3.293a1 1 0 011.414 0l.707.707a1 1 0 010 1.414l-2 2a1 1 0 01-1.414 0l-1-1a1 1 0 010-1.414l2-2a1 1 0 010-1.414zM14.5 9.5a1 1 0 00-1 1v.01a1 1 0 001 1h.01a1 1 0 001-1V10.5a1 1 0 00-1-1h-.01z" /></svg>`,
+                    calculations: {
+                        'flowrate': {
+                            name: 'Lưu lượng nước qua ống',
+                            inputs: [
+                                { label: 'Đường kính trong ống (D) - Đơn vị mm', id: 'diameter', unit: 'mm' },
+                                { label: 'Vận tốc dòng chảy (v) - Đơn vị m/s', id: 'velocity', unit: 'm/s', default: 1.5 }
+                            ],
+                            calculate: (vals) => {
+                                const radius_m = (vals.diameter / 2) / 1000;
+                                const area_m2 = Math.PI * Math.pow(radius_m, 2);
+                                const flow_m3_s = area_m2 * vals.velocity;
+                                const flow_m3_h = flow_m3_s * 3600;
+                                return { type: 'result', value: flow_m3_h.toFixed(3), unit: 'm³/h' };
+                            },
+                            formulaText: 'Q = (π × D²/4) × v'
+                        }
+                    }
+                }
+            };
+
+            // --- DOM ELEMENTS ---
+            const categoryScreen = document.getElementById('category-screen');
+            const calculationScreen = document.getElementById('calculation-screen');
+            const categoryButtonsContainer = document.getElementById('category-buttons');
+            const backBtn = document.getElementById('back-btn');
+            const calculationTitle = document.getElementById('calculation-title');
+            const formulaSelect = document.getElementById('formula-select');
+            const formulaTextContainer = document.getElementById('formula-text-container');
+            const formulaTextEl = document.getElementById('formula-text');
+            const inputFieldsContainer = document.getElementById('input-fields');
+            const calculateBtn = document.getElementById('calculate-btn');
+            const clearBtn = document.getElementById('clear-btn');
+            const resultContainer = document.getElementById('result-container');
+
+            let currentCategory = null;
+
+            // --- FUNCTIONS ---
+
+            function showScreen(screenId) {
+                document.querySelectorAll('.screen').forEach(screen => {
+                    screen.classList.remove('active');
+                });
+                document.getElementById(screenId).classList.add('active');
+            }
+
+            function displayCategories() {
+                categoryButtonsContainer.innerHTML = '';
+                for (const key in formulas) {
+                    const category = formulas[key];
+                    const button = document.createElement('button');
+                    button.className = 'btn card flex items-center p-4 text-left hover:bg-gray-50 hover:shadow-lg';
+                    button.innerHTML = `
+                        ${category.icon}
+                        <span class="ml-4 font-semibold text-base">${category.name}</span>
+                    `;
+                    button.onclick = () => selectCategory(key);
+                    categoryButtonsContainer.appendChild(button);
+                }
+            }
+
+            function selectCategory(key) {
+                currentCategory = key;
+                const category = formulas[key];
+                calculationTitle.textContent = category.name;
+                
+                formulaSelect.innerHTML = '';
+                const calcOrder = ['chonCB1pha', 'chonCB3pha', 'chonDayDien1pha', 'chonDayDien3pha', 'tinhCongSuat1Pha', 'tinhCongSuat3Pha'];
+                const sortedCalcs = Object.keys(category.calculations).sort((a, b) => {
+                    const indexA = calcOrder.indexOf(a);
+                    const indexB = calcOrder.indexOf(b);
+                    if (indexA === -1) return 1;
+                    if (indexB === -1) return -1;
+                    return indexA - indexB;
+                }).filter(calcKey => category.calculations[calcKey]);
+
+                for (const calcKey of sortedCalcs) {
+                    const option = document.createElement('option');
+                    option.value = calcKey;
+                    option.textContent = category.calculations[calcKey].name;
+                    formulaSelect.appendChild(option);
+                }
+                
+                displayFormulaInputs();
+                showScreen('calculation-screen');
+            }
+            
+            function displayFormulaInputs() {
+                const calcKey = formulaSelect.value;
+                if (!currentCategory || !formulas[currentCategory].calculations[calcKey]) return;
+
+                const calculation = formulas[currentCategory].calculations[calcKey];
+                
+                inputFieldsContainer.innerHTML = '';
+                resultContainer.innerHTML = '';
+
+                if (calculation.formulaText) {
+                    formulaTextEl.textContent = calculation.formulaText;
+                    formulaTextContainer.style.display = 'block';
+                } else {
+                    formulaTextContainer.style.display = 'none';
+                }
+
+                calculation.inputs.forEach(input => {
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'input-wrapper';
+                    wrapper.id = `wrapper-${input.id}`;
+
+                    const label = document.createElement('label');
+                    label.htmlFor = input.id;
+                    label.className = "block text-sm font-medium text-gray-700 mb-1";
+                    label.textContent = input.label;
+                    wrapper.appendChild(label);
+
+                    if (input.type === 'select') {
+                        const selectEl = document.createElement('select');
+                        selectEl.id = input.id;
+                        selectEl.className = 'select-field';
+                        input.options.forEach(opt => {
+                            const optionEl = document.createElement('option');
+                            optionEl.value = opt.value;
+                            optionEl.textContent = opt.text;
+                            if (String(opt.value) === String(input.default)) {
+                                optionEl.selected = true;
+                            }
+                            selectEl.appendChild(optionEl);
+                        });
+                        wrapper.appendChild(selectEl);
+                    } else {
+                        const inputEl = document.createElement('input');
+                        inputEl.type = 'number';
+                        inputEl.step = 'any';
+                        inputEl.id = input.id;
+                        inputEl.placeholder = input.unit || '';
+                        inputEl.className = 'input-field';
+                        if (input.default) {
+                            inputEl.value = input.default;
+                        }
+                        wrapper.appendChild(inputEl);
+                    }
+                    inputFieldsContainer.appendChild(wrapper);
+                });
+
+                // Setup conditional visibility
+                setupConditionalInputs(calculation.inputs);
+            }
+
+            function setupConditionalInputs(inputs) {
+                const controllers = inputs.filter(input => input.type === 'select' && inputs.some(i => i.showIf && i.showIf.id === input.id));
+                
+                controllers.forEach(controller => {
+                    const controllerEl = document.getElementById(controller.id);
+                    const updateVisibility = () => {
+                        const currentValue = controllerEl.value;
+                        inputs.forEach(input => {
+                            if (input.showIf && input.showIf.id === controller.id) {
+                                const wrapper = document.getElementById(`wrapper-${input.id}`);
+                                if (input.showIf.value === currentValue) {
+                                    wrapper.style.display = '';
+                                } else {
+                                    wrapper.style.display = 'none';
+                                }
+                            }
+                        });
+                    };
+                    
+                    controllerEl.addEventListener('change', updateVisibility);
+                    // Initial call
+                    updateVisibility();
+                });
+            }
+
+
+            function performCalculation() {
+                const calcKey = formulaSelect.value;
+                const calculation = formulas[currentCategory].calculations[calcKey];
+                const values = {};
+                let hasError = false;
+
+                resultContainer.innerHTML = '';
+
+                calculation.inputs.forEach(input => {
+                    const wrapper = document.getElementById(`wrapper-${input.id}`);
+                    if (wrapper && wrapper.style.display === 'none') {
+                        return;
+                    }
+
+                    const inputEl = document.getElementById(input.id);
+                    const rawValue = inputEl.value;
+
+                    if (rawValue === '' && !input.optional) {
+                        showError(`Vui lòng nhập giá trị hợp lệ cho "${input.label}".`);
+                        inputEl.classList.add('border-red-500');
+                        hasError = true;
+                        return;
+                    }
+                    
+                    inputEl.classList.remove('border-red-500');
+                    
+                    if (input.type === 'select') {
+                         values[input.id] = rawValue;
+                    } else {
+                        const numericValue = parseFloat(rawValue);
+                        if (isNaN(numericValue) && rawValue !== '' && !input.optional) {
+                             showError(`Giá trị không hợp lệ cho "${input.label}".`);
+                             inputEl.classList.add('border-red-500');
+                             hasError = true;
+                        } else {
+                            values[input.id] = numericValue;
+                        }
+                    }
+                });
+
+                if (hasError) return;
+
+                try {
+                    const result = calculation.calculate(values);
+                    showResult(result);
+                } catch (error) {
+                    showError(error.message);
+                }
+            }
+
+            function showResult(result) {
+                let cardId = 'result-card';
+                let cardClasses = 'card p-5 space-y-2';
+                if (result.type === 'warning') {
+                    cardId = 'warning-card';
+                    cardClasses = 'card p-5 space-y-2 bg-orange-50 text-orange-800';
+                }
+
+                resultContainer.innerHTML = `
+                    <div id="${cardId}" class="${cardClasses}">
+                        <p class="text-2xl md:text-3xl font-bold">
+                            ${result.value}
+                        </p>
+                        <p class="text-lg md:text-xl font-medium">${result.unit}</p>
+                        ${result.note ? `<div class="text-sm pt-2 border-t border-gray-200 mt-2">${result.note}</div>` : ''}
+                    </div>
+                `;
+            }
+            
+            function showError(message) {
+                 resultContainer.innerHTML = `
+                    <div id="error-card" class="card p-4 bg-red-50 text-red-700">
+                        <p class="font-semibold">Lỗi!</p>
+                        <p>${message}</p>
+                    </div>
+                `;
+            }
+
+            function clearFields() {
+                inputFieldsContainer.querySelectorAll('input, select').forEach(field => {
+                    const fieldId = field.id;
+                    const calcKey = formulaSelect.value;
+                    const calc = formulas[currentCategory].calculations[calcKey];
+                    const inputDef = calc.inputs.find(i => i.id === fieldId);
+                    if (inputDef && inputDef.default) {
+                        field.value = inputDef.default;
+                    } else {
+                        field.value = '';
+                    }
+                    field.classList.remove('border-red-500');
+                });
+                resultContainer.innerHTML = '';
+                const calc = formulas[currentCategory].calculations[formulaSelect.value];
+                setupConditionalInputs(calc.inputs);
+            }
+
+            // --- EVENT LISTENERS ---
+            backBtn.addEventListener('click', () => {
+                showScreen('category-screen');
+                resultContainer.innerHTML = '';
+            });
+
+            formulaSelect.addEventListener('change', displayFormulaInputs);
+            calculateBtn.addEventListener('click', performCalculation);
+            clearBtn.addEventListener('click', clearFields);
+
+            // --- INITIALIZATION ---
+            displayCategories();
+        });
+    </script>
+</body>
+</html>
+
