@@ -504,6 +504,87 @@
                                 };
                             },
                              formulaText: 'Vật liệu = Diện tích × Định mức'
+                        },
+                        'tinhTranThachCaoNoi': {
+                            name: 'Tính vật liệu trần thạch cao nổi (thả)',
+                            inputs: [
+                                { label: 'Tên phòng/khu vực (để ghi nhớ)', id: 'areaName', type: 'text', unit: 'VD: Trần văn phòng' },
+                                { label: 'Chiều dài trần (m)', id: 'length', unit: 'm' },
+                                { label: 'Chiều rộng trần (m)', id: 'width', unit: 'm' },
+                                { label: 'Kích thước tấm', id: 'boardSize', type: 'select', options: [
+                                    {value: '600x600', text: '600 x 600 mm'},
+                                    {value: '600x1200', text: '600 x 1200 mm'}
+                                ], default: '600x600' }
+                            ],
+                            calculate: (vals) => {
+                                const area = vals.length * vals.width;
+                                const perimeter = (vals.length + vals.width) * 2;
+                                let materials = {};
+                                let resultText = '';
+
+                                if (vals.boardSize === '600x600') {
+                                    materials = {
+                                        tamTranNoi600: area / 0.36,
+                                        thanhChinhNoi: (area * 0.23) / 3.6,
+                                        thanhPhu1m2: (area * 1.37) / 1.2,
+                                        thanhPhu0m6: (area * 1.37) / 0.6,
+                                        thanhVienTuong: perimeter / 3.6,
+                                        tyRen: area * 0.7,
+                                        tacKe: area * 0.7,
+                                        patTreo: area * 0.7
+                                    };
+                                    resultText = `
+                                        <p><strong>- Tấm thạch cao (phủ PVC 600x600):</strong> ${Math.ceil(materials.tamTranNoi600).toLocaleString()} tấm</p>
+                                        <p class="font-semibold text-sm mt-2">Hệ khung xương:</p>
+                                        <div class="pl-4">
+                                            <p><strong>- Thanh chính T-bar (3.6m):</strong> ${Math.ceil(materials.thanhChinhNoi).toLocaleString()} thanh</p>
+                                            <p><strong>- Thanh phụ T-bar (1.2m):</strong> ${Math.ceil(materials.thanhPhu1m2).toLocaleString()} thanh</p>
+                                            <p><strong>- Thanh phụ T-bar (0.6m):</strong> ${Math.ceil(materials.thanhPhu0m6).toLocaleString()} thanh</p>
+                                            <p><strong>- Thanh viền tường (3.6m):</strong> ${Math.ceil(materials.thanhVienTuong).toLocaleString()} thanh</p>
+                                        </div>
+                                    `;
+                                } else { // 600x1200
+                                    materials = {
+                                        tamTranNoi1200: area / 0.72,
+                                        thanhChinhNoi: (area * 0.23) / 3.6,
+                                        thanhPhu1m2: (area * 1.37) / 1.2,
+                                        thanhVienTuong: perimeter / 3.6,
+                                        tyRen: area * 0.7,
+                                        tacKe: area * 0.7,
+                                        patTreo: area * 0.7
+                                    };
+                                     resultText = `
+                                        <p><strong>- Tấm thạch cao (phủ PVC 600x1200):</strong> ${Math.ceil(materials.tamTranNoi1200).toLocaleString()} tấm</p>
+                                        <p class="font-semibold text-sm mt-2">Hệ khung xương:</p>
+                                        <div class="pl-4">
+                                            <p><strong>- Thanh chính T-bar (3.6m):</strong> ${Math.ceil(materials.thanhChinhNoi).toLocaleString()} thanh</p>
+                                            <p><strong>- Thanh phụ T-bar (1.2m):</strong> ${Math.ceil(materials.thanhPhu1m2).toLocaleString()} thanh</p>
+                                            <p><strong>- Thanh viền tường (3.6m):</strong> ${Math.ceil(materials.thanhVienTuong).toLocaleString()} thanh</p>
+                                        </div>
+                                    `;
+                                }
+
+                                const fullResultText = `
+                                    <div class="space-y-3 text-left">
+                                        ${resultText}
+                                        <p class="font-semibold text-sm mt-2">Phụ kiện treo:</p>
+                                        <div class="pl-4">
+                                            <p><strong>- Ty ren:</strong> ${Math.ceil(materials.tyRen).toLocaleString()} cái</p>
+                                            <p><strong>- Tắc kê:</strong> ${Math.ceil(materials.tacKe).toLocaleString()} cái</p>
+                                            <p><strong>- Pát treo:</strong> ${Math.ceil(materials.patTreo).toLocaleString()} cái</p>
+                                        </div>
+                                    </div>
+                                `;
+
+                                return {
+                                    type: 'result',
+                                    value: `Vật liệu cho: ${vals.areaName || 'Trần hiện tại'}`,
+                                    unit: `(Diện tích: ${area.toFixed(2)} m²)`,
+                                    note: fullResultText,
+                                    materials: materials
+                                };
+                            },
+                            formulaText: 'Vật liệu = Diện tích × Định mức'
                         }
                     }
                 }
@@ -534,7 +615,8 @@
                 botTret: 'bao', sonLot: 'lít', sonHoanThien: 'lít',
                 tamThachCao: 'tấm', thanhChinh: 'thanh', thanhPhu: 'thanh', thanhVienTuong: 'thanh', 
                 tyRen: 'cái', tacKe: 'cái', tangDo: 'cái', patTreo: 'cái', khoaLienKet: 'cái',
-                vitThachCao: 'cái', botMoiNoi: 'kg', bangKeoLuoi: 'm', dinhThep: 'cái'
+                vitThachCao: 'cái', botMoiNoi: 'kg', bangKeoLuoi: 'm', dinhThep: 'cái',
+                tamTranNoi600: 'tấm', tamTranNoi1200: 'tấm', thanhChinhNoi: 'thanh', thanhPhu1m2: 'thanh', thanhPhu0m6: 'thanh'
             };
              const materialNames = {
                 gachOng: 'Gạch ống (8x8x18 cm)', gachThe: 'Gạch thẻ (4x8x18 cm)', gachKhongNung: 'Gạch không nung (20x10x6 cm)',
@@ -543,9 +625,10 @@
                 catVang: 'Cát vàng (bê tông)', da1x2: 'Đá 1x2 (bê tông)',
                 thepPhi6: 'Thép Ø6', thepPhi10: 'Thép Ø10', thepPhi12: 'Thép Ø12', cotPha: 'Cốt pha (ván khuôn)',
                 botTret: 'Bột trét tường', sonLot: 'Sơn lót', sonHoanThien: 'Sơn hoàn thiện',
-                tamThachCao: 'Tấm thạch cao', thanhChinh: 'Thanh chính', thanhPhu: 'Thanh phụ', thanhVienTuong: 'Thanh viền tường', 
+                tamThachCao: 'Tấm thạch cao (chìm)', thanhChinh: 'Thanh chính (trần chìm)', thanhPhu: 'Thanh phụ (trần chìm)', thanhVienTuong: 'Thanh viền tường', 
                 tyRen: 'Ty ren', tacKe: 'Tắc kê', tangDo: 'Tăng đơ', patTreo: 'Pát treo', khoaLienKet: 'Khóa liên kết',
-                vitThachCao: 'Vít thạch cao', botMoiNoi: 'Bột xử lý mối nối', bangKeoLuoi: 'Băng keo lưới', dinhThep: 'Đinh thép'
+                vitThachCao: 'Vít thạch cao', botMoiNoi: 'Bột xử lý mối nối', bangKeoLuoi: 'Băng keo lưới', dinhThep: 'Đinh thép',
+                tamTranNoi600: 'Tấm trần nổi (600x600)', tamTranNoi1200: 'Tấm trần nổi (600x1200)', thanhChinhNoi: 'Thanh chính T-bar (3.6m)', thanhPhu1m2: 'Thanh phụ T-bar (1.2m)', thanhPhu0m6: 'Thanh phụ T-bar (0.6m)'
             };
 
             function initSummary() {
@@ -757,7 +840,7 @@
             // --- INITIALIZATION ---
             function initializePage() {
                 const category = formulas['vlxd'];
-                const calcOrder = ['tinhVatLieuTuong', 'tinhVuaToTrat', 'tinhVatLieuSon', 'tinhTranThachCao'];
+                const calcOrder = ['tinhVatLieuTuong', 'tinhVuaToTrat', 'tinhVatLieuSon', 'tinhTranThachCao', 'tinhTranThachCaoNoi'];
                 
                 calcOrder.forEach(calcKey => {
                     if (category.calculations[calcKey]) {
