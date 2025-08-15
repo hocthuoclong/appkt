@@ -585,6 +585,216 @@
                                 };
                             },
                             formulaText: 'Vật liệu = Diện tích × Định mức'
+                        },
+                        'tinhVachThachCao': {
+                            name: 'Tính vật liệu vách thạch cao',
+                            inputs: [
+                                { label: 'Tên phòng/khu vực (để ghi nhớ)', id: 'areaName', type: 'text', unit: 'VD: Vách ngăn phòng' },
+                                { label: 'Chiều dài vách (m)', id: 'length', unit: 'm' },
+                                { label: 'Chiều cao vách (m)', id: 'height', unit: 'm' },
+                                { label: 'Số mặt thi công', id: 'sides', type: 'select', options: [{value: 1, text: '1 mặt'}, {value: 2, text: '2 mặt'}], default: 2 },
+                                { label: 'Loại tấm thạch cao', id: 'boardType', type: 'select', options: [
+                                    { value: '9', text: 'Tấm tiêu chuẩn 9mm (1.22x2.44m)' },
+                                    { value: '12.5', text: 'Tấm tiêu chuẩn 12.5mm (1.22x2.44m)' },
+                                    { value: '15', text: 'Tấm tiêu chuẩn 15mm (1.22x2.44m)' },
+                                    { value: '9ca', text: 'Tấm chống ẩm 9mm (1.22x2.44m)' },
+                                    { value: '12.5ca', text: 'Tấm chống ẩm 12.5mm (1.22x2.44m)' },
+                                    { value: '15ca', text: 'Tấm chống ẩm 15mm (1.22x2.44m)' }
+                                ], default: '9' }
+                            ],
+                            calculate: (vals) => {
+                                const area = vals.length * vals.height * vals.sides;
+                                const perimeter = (vals.length + vals.height) * 2;
+                                
+                                const materials = {
+                                    tamThachCao: area * 0.34,
+                                    thanhDung: (vals.length / 0.6) * vals.height / 3, // C-Stud, a600
+                                    thanhNgang: (vals.length * 2) / 3, // U-Track, trên & dưới
+                                    vitThachCao: area * 20,
+                                    botMoiNoi: area * 0.5,
+                                    bangKeoLuoi: area * 1.2,
+                                    tacKeLienKet: perimeter * 2
+                                };
+
+                                let resultText = `
+                                    <div class="space-y-3 text-left">
+                                        <p><strong>- Tấm thạch cao:</strong> ${Math.ceil(materials.tamThachCao).toLocaleString()} tấm</p>
+                                        <p class="font-semibold text-sm mt-2">Hệ khung xương:</p>
+                                        <div class="pl-4">
+                                            <p><strong>- Thanh đứng (C-Stud):</strong> ${Math.ceil(materials.thanhDung).toLocaleString()} thanh (3m)</p>
+                                            <p><strong>- Thanh ngang (U-Track):</strong> ${Math.ceil(materials.thanhNgang).toLocaleString()} thanh (3m)</p>
+                                        </div>
+                                        <p class="font-semibold text-sm mt-2">Vật tư phụ:</p>
+                                        <div class="pl-4">
+                                            <p><strong>- Vít thạch cao:</strong> ${Math.ceil(materials.vitThachCao).toLocaleString()} cái</p>
+                                            <p><strong>- Băng keo lưới:</strong> ${materials.bangKeoLuoi.toFixed(1)} m</p>
+                                            <p><strong>- Bột xử lý mối nối:</strong> ${materials.botMoiNoi.toFixed(1)} kg</p>
+                                            <p><strong>- Tắc kê liên kết sàn/trần:</strong> ${Math.ceil(materials.tacKeLienKet).toLocaleString()} cái</p>
+                                        </div>
+                                    </div>
+                                `;
+                                
+                                const needsReinforcement = vals.length > 4 || vals.height > 3;
+                                if(needsReinforcement) {
+                                    let reinforcementNote = `<div class="mt-4 pt-4 border-t border-gray-200"><h4 class="font-bold text-sm text-amber-700">Lưu ý gia cố:</h4>`;
+                                    if(vals.length > 4) {
+                                        const numReinforcements = Math.floor(vals.length / 4);
+                                        materials.thepHopGiaCo = (materials.thepHopGiaCo || 0) + numReinforcements * vals.height;
+                                        reinforcementNote += `<p class="text-xs italic text-gray-600">- Vách dài > 4m, cần bổ sung ${numReinforcements} thanh thép hộp gia cố đứng (mỗi 4m).</p>`;
+                                    }
+                                     if(vals.height > 3) {
+                                        const numReinforcements = Math.floor(vals.height / 3);
+                                        materials.thepHopGiaCo = (materials.thepHopGiaCo || 0) + numReinforcements * vals.length;
+                                        reinforcementNote += `<p class="text-xs italic text-gray-600">- Vách cao > 3m, cần bổ sung ${numReinforcements} thanh thép hộp gia cố ngang (mỗi 3m).</p>`;
+                                    }
+                                    reinforcementNote += `<p class="font-semibold text-sm mt-2">Tổng thép hộp cần thêm: ${materials.thepHopGiaCo.toFixed(1)} m</p></div>`;
+                                    resultText += reinforcementNote;
+                                }
+
+
+                                return {
+                                    type: 'result',
+                                    value: `Vật liệu cho: ${vals.areaName || 'Vách hiện tại'}`,
+                                    unit: `(Diện tích: ${area.toFixed(2)} m²)`,
+                                    note: resultText,
+                                    materials: materials
+                                };
+                            },
+                             formulaText: 'Vật liệu = Diện tích × Định mức'
+                        },
+                        'tinhVatLieuLatNen': {
+                            name: 'Tính toán vật liệu ốp lát nền',
+                            inputs: [
+                                { label: 'Tên phòng/khu vực (để ghi nhớ)', id: 'areaName', type: 'text', unit: 'VD: Sàn phòng khách' },
+                                { label: 'Chiều dài sàn (m)', id: 'length', unit: 'm' },
+                                { label: 'Chiều rộng sàn (m)', id: 'width', unit: 'm' },
+                                { label: 'Kích thước gạch (cm)', id: 'tileSize', type: 'select', options: [
+                                    { value: '20x20', text: '20 x 20 cm' },
+                                    { value: '30x30', text: '30 x 30 cm' },
+                                    { value: '40x40', text: '40 x 40 cm' },
+                                    { value: '60x60', text: '60 x 60 cm' },
+                                    { value: '80x80', text: '80 x 80 cm' },
+                                    { value: '30x60', text: '30 x 60 cm' },
+                                    { value: '60x120', text: '60 x 120 cm' }
+                                ], default: '60x60' },
+                                { label: 'Phương pháp thi công', id: 'method', type: 'select', options: [
+                                    { value: 'mortar', text: 'Hồ dầu (vữa lót)' },
+                                    { value: 'adhesive', text: 'Keo dán gạch' }
+                                ], default: 'mortar' }
+                            ],
+                            calculate: (vals) => {
+                                const area = vals.length * vals.width;
+                                const perimeter = (vals.length + vals.width) * 2;
+                                const tileDims = vals.tileSize.split('x').map(Number);
+                                const tileArea = (tileDims[0] / 100) * (tileDims[1] / 100);
+                                const numTiles = (area / tileArea) * 1.1; // 10% wastage
+                                
+                                let materials = { gachLatNen: numTiles, lenChanTuong: perimeter };
+                                let resultItems = [`<p><strong>- Gạch lát nền (${vals.tileSize} cm):</strong> ${Math.ceil(numTiles).toLocaleString()} viên (đã tính 10% hao hụt)</p>`];
+                                
+                                // Vữa lót
+                                const mortarVolume = area * 0.03; // 3cm mortar bed
+                                const cementBagsMortar = (mortarVolume * 250) / 50; // Mac 75
+                                const sandM3 = mortarVolume * 1.1;
+                                materials.xiMang = (materials.xiMang || 0) + cementBagsMortar;
+                                materials.catXay = (materials.catXay || 0) + sandM3;
+                                resultItems.push(`<p class="font-semibold text-sm mt-2">Vật liệu lớp vữa lót (dày 3cm):</p>
+                                        <div class="pl-4">
+                                            <p><strong>- Xi măng:</strong> ${Math.ceil(cementBagsMortar)} bao</p>
+                                            <p><strong>- Cát xây:</strong> ${sandM3.toFixed(2)} m³</p>
+                                        </div>`);
+
+                                // Lớp liên kết
+                                if (vals.method === 'mortar') {
+                                    const hoDauXiMang = area * 0.05; // approx. 0.05 bags/m²
+                                    materials.xiMang = (materials.xiMang || 0) + hoDauXiMang;
+                                    resultItems.push(`<p><strong>- Xi măng (làm hồ dầu):</strong> ${Math.ceil(hoDauXiMang)} bao</p>`);
+                                } else { // Adhesive
+                                    const adhesiveKg = area * 5; // 5 kg/m²
+                                    const adhesiveBags = adhesiveKg / 25;
+                                    materials.keoDanGach = adhesiveBags;
+                                    resultItems.push(`<p><strong>- Keo dán gạch:</strong> ${Math.ceil(adhesiveBags)} bao (25kg)</p>`);
+                                }
+
+                                const groutKg = area * 0.2; // 0.2 kg/m²
+                                materials.keoChaRon = groutKg;
+                                resultItems.push(`<p><strong>- Keo chà ron (keo chít mạch):</strong> ${groutKg.toFixed(2)} kg</p>`);
+                                resultItems.push(`<p><strong>- Len chân tường:</strong> ${perimeter.toFixed(1)} m</p>`);
+
+                                return {
+                                    type: 'result',
+                                    value: `Vật liệu cho: ${vals.areaName || 'Sàn hiện tại'}`,
+                                    unit: `(Diện tích: ${area.toFixed(2)} m²)`,
+                                    note: `<div class="space-y-3 text-left">${resultItems.join('')}</div>`,
+                                    materials: materials
+                                };
+                            },
+                            formulaText: 'Vật liệu = Diện tích × Định mức'
+                        },
+                        'tinhVatLieuBeTong': {
+                            name: 'Tính toán vật liệu bê tông',
+                            inputs: [
+                                { label: 'Tên hạng mục (để ghi nhớ)', id: 'areaName', type: 'text', unit: 'VD: Sàn tầng 1' },
+                                { label: 'Tổng khối lượng bê tông (m³)', id: 'volume', unit: 'm³' },
+                                { label: 'Mác bê tông', id: 'macGrade', type: 'select', options: [
+                                    { value: 100, text: 'Mác 100 (Bê tông lót)' },
+                                    { value: 150, text: 'Mác 150 (Lót, móng, công trình phụ)' },
+                                    { value: 200, text: 'Mác 200 (Cột, dầm, sàn nhà dân)' },
+                                    { value: 250, text: 'Mác 250 (Nhà cao tầng, kết cấu lớn)' },
+                                    { value: 300, text: 'Mác 300 (Công trình yêu cầu cao)' }
+                                ], default: 200 },
+                                { label: 'Thời gian đạt cường độ', id: 'curingTime', type: 'select', options: [
+                                    { value: 28, text: '28 ngày (tiêu chuẩn)' },
+                                    { value: 14, text: '14 ngày' },
+                                    { value: 7, text: '7 ngày (cần phụ gia)' }
+                                ], default: 28 }
+                            ],
+                            calculate: (vals) => {
+                                const volume = vals.volume;
+                                let ratios = {};
+                                switch(parseInt(vals.macGrade)) {
+                                    case 100: ratios = { cement: 218, sand: 0.53, stone: 0.92, water: 185 }; break;
+                                    case 150: ratios = { cement: 288, sand: 0.50, stone: 0.91, water: 185 }; break;
+                                    case 250: ratios = { cement: 415, sand: 0.45, stone: 0.89, water: 185 }; break;
+                                    case 300: ratios = { cement: 450, sand: 0.45, stone: 0.88, water: 185 }; break;
+                                    default:  ratios = { cement: 350, sand: 0.48, stone: 0.90, water: 185 }; // Mác 200
+                                }
+                                
+                                const totalCement = volume * ratios.cement;
+                                const totalSand = volume * ratios.sand;
+                                const totalStone = volume * ratios.stone;
+                                const totalWater = volume * ratios.water;
+
+                                let materials = { xiMang: totalCement / 50, catVang: totalSand, da1x2: totalStone };
+                                let resultItems = [
+                                    `<p><strong>- Xi măng:</strong> ${Math.ceil(totalCement / 50).toLocaleString()} bao (${totalCement.toFixed(1)} kg)</p>`,
+                                    `<p><strong>- Cát vàng:</strong> ${totalSand.toFixed(2)} m³</p>`,
+                                    `<p><strong>- Đá 1x2:</strong> ${totalStone.toFixed(2)} m³</p>`,
+                                    `<p><strong>- Nước:</strong> ${totalWater.toFixed(0)} lít</p>`
+                                ];
+                                
+                                if (parseInt(vals.curingTime) < 28) {
+                                    const admixture = totalCement * (1 / 100); // 1 lít / 100kg xi măng
+                                    materials.phuGiaR7 = admixture;
+                                    resultItems.push(`<p><strong>- Phụ gia R7:</strong> ${admixture.toFixed(2)} lít</p>`);
+                                }
+                                
+                                const resultText = `
+                                    <div class="space-y-3 text-left">
+                                        <p class="font-semibold">Cấp phối cho ${volume} m³ bê tông Mác ${vals.macGrade}:</p>
+                                        <div class="pl-4">${resultItems.join('')}</div>
+                                    </div>
+                                `;
+
+                                return {
+                                    type: 'result',
+                                    value: `Vật liệu cho: ${vals.areaName || 'Bê tông'}`,
+                                    unit: `(Tổng khối lượng: ${volume} m³)`,
+                                    note: resultText,
+                                    materials: materials
+                                };
+                            },
+                            formulaText: 'Vật liệu = Khối lượng × Cấp phối'
                         }
                     }
                 }
@@ -611,24 +821,30 @@
                 gachOng: 'viên', gachThe: 'viên', gachKhongNung: 'viên', gachAAC: 'viên', vuaChuyenDung: 'kg',
                 xiMang: 'bao', catXay: 'm³', catTo: 'm³', luoiChongNut: 'm²',
                 catVang: 'm³', da1x2: 'm³',
-                thepPhi6: 'kg', thepPhi10: 'kg', thepPhi12: 'kg', cotPha: 'm²',
+                thepPhi6: 'kg', thepPhi10: 'kg', thepPhi12: 'kg', cotPha: 'm²', thepHopGiaCo: 'm',
                 botTret: 'bao', sonLot: 'lít', sonHoanThien: 'lít',
                 tamThachCao: 'tấm', thanhChinh: 'thanh', thanhPhu: 'thanh', thanhVienTuong: 'thanh', 
                 tyRen: 'cái', tacKe: 'cái', tangDo: 'cái', patTreo: 'cái', khoaLienKet: 'cái',
                 vitThachCao: 'cái', botMoiNoi: 'kg', bangKeoLuoi: 'm', dinhThep: 'cái',
-                tamTranNoi600: 'tấm', tamTranNoi1200: 'tấm', thanhChinhNoi: 'thanh', thanhPhu1m2: 'thanh', thanhPhu0m6: 'thanh'
+                tamTranNoi600: 'tấm', tamTranNoi1200: 'tấm', thanhChinhNoi: 'thanh', thanhPhu1m2: 'thanh', thanhPhu0m6: 'thanh',
+                thanhDung: 'thanh', thanhNgang: 'thanh', tacKeLienKet: 'cái',
+                gachLatNen: 'viên', keoDanGach: 'bao', keoChaRon: 'kg', lenChanTuong: 'm',
+                phuGiaR7: 'lít'
             };
              const materialNames = {
                 gachOng: 'Gạch ống (8x8x18 cm)', gachThe: 'Gạch thẻ (4x8x18 cm)', gachKhongNung: 'Gạch không nung (20x10x6 cm)',
                 gachAAC: 'Gạch bê tông nhẹ (AAC)', vuaChuyenDung: 'Vữa chuyên dụng (cho gạch AAC)',
                 xiMang: 'Xi măng (tổng hợp)', catXay: 'Cát xây', catTo: 'Cát tô', luoiChongNut: 'Lưới chống nứt',
                 catVang: 'Cát vàng (bê tông)', da1x2: 'Đá 1x2 (bê tông)',
-                thepPhi6: 'Thép Ø6', thepPhi10: 'Thép Ø10', thepPhi12: 'Thép Ø12', cotPha: 'Cốt pha (ván khuôn)',
+                thepPhi6: 'Thép Ø6', thepPhi10: 'Thép Ø10', thepPhi12: 'Thép Ø12', cotPha: 'Cốt pha (ván khuôn)', thepHopGiaCo: 'Thép hộp gia cố',
                 botTret: 'Bột trét tường', sonLot: 'Sơn lót', sonHoanThien: 'Sơn hoàn thiện',
-                tamThachCao: 'Tấm thạch cao (chìm)', thanhChinh: 'Thanh chính (trần chìm)', thanhPhu: 'Thanh phụ (trần chìm)', thanhVienTuong: 'Thanh viền tường', 
+                tamThachCao: 'Tấm thạch cao (chìm/vách)', thanhChinh: 'Thanh chính (trần chìm)', thanhPhu: 'Thanh phụ (trần chìm)', thanhVienTuong: 'Thanh viền tường', 
                 tyRen: 'Ty ren', tacKe: 'Tắc kê', tangDo: 'Tăng đơ', patTreo: 'Pát treo', khoaLienKet: 'Khóa liên kết',
                 vitThachCao: 'Vít thạch cao', botMoiNoi: 'Bột xử lý mối nối', bangKeoLuoi: 'Băng keo lưới', dinhThep: 'Đinh thép',
-                tamTranNoi600: 'Tấm trần nổi (600x600)', tamTranNoi1200: 'Tấm trần nổi (600x1200)', thanhChinhNoi: 'Thanh chính T-bar (3.6m)', thanhPhu1m2: 'Thanh phụ T-bar (1.2m)', thanhPhu0m6: 'Thanh phụ T-bar (0.6m)'
+                tamTranNoi600: 'Tấm trần nổi (600x600)', tamTranNoi1200: 'Tấm trần nổi (600x1200)', thanhChinhNoi: 'Thanh chính T-bar (3.6m)', thanhPhu1m2: 'Thanh phụ T-bar (1.2m)', thanhPhu0m6: 'Thanh phụ T-bar (0.6m)',
+                thanhDung: 'Thanh đứng C-Stud', thanhNgang: 'Thanh ngang U-Track', tacKeLienKet: 'Tắc kê liên kết sàn/trần',
+                gachLatNen: 'Gạch lát nền', keoDanGach: 'Keo dán gạch', keoChaRon: 'Keo chà ron', lenChanTuong: 'Len chân tường',
+                phuGiaR7: 'Phụ gia đông kết nhanh (R7)'
             };
 
             function initSummary() {
@@ -840,7 +1056,7 @@
             // --- INITIALIZATION ---
             function initializePage() {
                 const category = formulas['vlxd'];
-                const calcOrder = ['tinhVatLieuTuong', 'tinhVuaToTrat', 'tinhVatLieuSon', 'tinhTranThachCao', 'tinhTranThachCaoNoi'];
+                const calcOrder = ['tinhVatLieuTuong', 'tinhVuaToTrat', 'tinhVatLieuSon', 'tinhTranThachCao', 'tinhTranThachCaoNoi', 'tinhVachThachCao', 'tinhVatLieuLatNen', 'tinhVatLieuBeTong'];
                 
                 calcOrder.forEach(calcKey => {
                     if (category.calculations[calcKey]) {
