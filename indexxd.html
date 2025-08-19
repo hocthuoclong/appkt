@@ -67,6 +67,11 @@
         
         <!-- Header -->
         <header class="text-center mb-6">
+            <!-- Logo added here -->
+            <img src="logonew.png" 
+                 alt="Logo Kỹ Sư" 
+                 class="mx-auto mb-4 w-20 h-20 rounded-full object-cover shadow-md"
+                 onerror="this.onerror=null;this.src='https://placehold.co/80x80/e2e8f0/334155?text=Logo';">
             <h1 class="text-2xl md:text-3xl font-bold text-gray-900">Sổ Tay Kỹ Sư</h1>
             <p class="text-gray-600 mt-1">Vật liệu Xây dựng (Hoàn thiện)</p>
         </header>
@@ -870,7 +875,7 @@
                 }
 
                 let summaryHTML = `<div id="summary-card" class="card p-5 space-y-3">
-                                    <h3 class="text-xl font-bold text-gray-800">Bảng tổng kết vật tư</h3>`;
+                                        <h3 class="text-xl font-bold text-gray-800">Bảng tổng kết vật tư</h3>`;
                 
                 for (const key in materialSummary) {
                     if (materialSummary[key] > 0) {
@@ -1030,7 +1035,7 @@
                         <p>${message}</p>
                     </div>
                 `;
-                supportSection.style.display = 'none';
+                 supportSection.style.display = 'none';
             }
 
             function clearFields() {
@@ -1095,6 +1100,3 @@
     </script>
 </body>
 </html>
-
-
-
